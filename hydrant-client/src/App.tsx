@@ -1,5 +1,3 @@
-import { SearchIcon } from "@chakra-ui/icons"
-import { InputGroup, InputLeftElement, Input, Stack } from "@chakra-ui/react"
 import React, { useState } from "react"
 import { Route, Routes } from "react-router-dom"
 import { MainTable } from "./MainTable"
@@ -25,26 +23,22 @@ const MainList = () => {
   const [search, setSearch] = useState<string>("")
   return (
     <div className="p-4 bg">
-      <Stack spacing={4}>
+      <div className="grid gap-4">
         <Search {...{ search, setSearch }}></Search>
         <MainTable {...{ search }}></MainTable>
-      </Stack>
+      </div>
     </div>
   )
 }
-const Search = ({
-  search,
-  setSearch,
-}: {
-  search: string
-  setSearch: (a0: string) => void
-}) => (
-  <InputGroup>
-    <InputLeftElement>
-      <SearchIcon color="gray.300" />
-    </InputLeftElement>
-    <Input value={search} onChange={(e) => setSearch(e.target.value)}></Input>
-  </InputGroup>
+
+const Search = ({ search, setSearch }: { search: string; setSearch: (a0: string) => void }) => (
+  <input
+    className="w-full rounded h-8 p-2 bg-slate-100 border-2"
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    autoFocus
+    placeholder="Search"
+  ></input>
 )
 
 export default App

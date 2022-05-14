@@ -1,4 +1,3 @@
-import { grid } from "@chakra-ui/react"
 import MaterialTable from "@material-table/core"
 import { Paper } from "@material-ui/core"
 import _ from "lodash"
@@ -30,9 +29,7 @@ export const MainTable = ({ search }: { search: string }) => {
             render: (p: CourseInfo) => (
               <div className="grid w-5/8 bg-slate-100">
                 <p className="text-slate-700">{p.course_number}</p>
-                <p className="text-slate-400 text-sm truncate">
-                  {p.course_name}
-                </p>
+                <p className="text-slate-400 text-sm truncate">{p.course_name}</p>
               </div>
             ),
             cellStyle: { width: "100vw" },
@@ -43,9 +40,7 @@ export const MainTable = ({ search }: { search: string }) => {
             defaultSort: "desc",
           },
         ]}
-        detailPanel={({ rowData }: { rowData: CourseInfo }) => (
-          <div>This class was a banger!</div>
-        )}
+        detailPanel={({ rowData }: { rowData: CourseInfo }) => <div>This class was a banger!</div>}
         data={filtered}
         components={{
           Container: (props) => <Paper elevation={0} {...props}></Paper>,
