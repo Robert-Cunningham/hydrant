@@ -5,5 +5,9 @@ import Bestpost from "../posts/hassa.mdx"
 export const Post = () => {
   const { id } = useParams<{ id: string }>()
 
-  return <Bestpost></Bestpost>
+  return (
+    <article className="prose">
+      <Bestpost></Bestpost>
+    </article>
+  )
 }
