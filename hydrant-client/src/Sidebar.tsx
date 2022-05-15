@@ -16,12 +16,13 @@ const links = [
 export const Sidebar = () => (
   <div className="col-span-2 bg-slate-50 border-r">
     {links.map(({ text, link, icon }) => (
-      <div className="group m-2 h-10 rounded-lg hover:bg-slate-100 transition duration-75 flex cursor-pointer items-center">
+      <a
+        href={link}
+        className="group m-2 h-10 rounded-lg hover:bg-slate-100 transition duration-75 flex cursor-pointer items-center"
+      >
         {icon}
-        <a href={link} className="text-slate-900 font-semibold text-sm justify-start ml-2">
-          {text}
-        </a>
-      </div>
+        <div className="text-slate-900 font-semibold text-sm justify-start ml-2">{text}</div>
+      </a>
     ))}
   </div>
 )
