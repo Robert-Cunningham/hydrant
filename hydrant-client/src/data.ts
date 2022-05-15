@@ -12,16 +12,15 @@ export type SemesterCourseInfo = {
   }
 } // straight from Ani's script
 
-export type MainObject = Record<
-  CourseNumber,
-  {
-    course_number: CourseNumber
-    info: CourseInfo // properties of the class, e.g. is it a HASS
-    firehose: Firehose // stuff straight from firehose
-    history: SemesterCourseInfo // historical rating data, teaching data, etc.
-    computed: ComputedCourseProperties // bayes, ranking info, etc.
-  }
->
+export type FullCourseData = {
+  course_number: CourseNumber
+  info: CourseInfo // properties of the class, e.g. is it a HASS
+  firehose: Firehose // stuff straight from firehose
+  history: SemesterCourseInfo // historical rating data, teaching data, etc.
+  computed: ComputedCourseProperties // bayes, ranking info, etc.
+}
+
+export type MainObject = Record<CourseNumber, FullCourseData>
 
 export type RatingGroup = {
   avg: number
@@ -55,31 +54,36 @@ const orGroupBy = <T>(list: T[], funcs: ((a0: T) => string)[]) => {
   return grouped
 }
 
-export const process = (courses: CourseInfo[]) => {
-  const byNumber = _(courses)
+export const generateMainObject = (
+  scraped: (SemesterCourseInfo & CourseInfo)[],
+  firehose: Record<CourseNumber, Firehose>
+): MainObject => {
+  const byNumber = _(scraped)
     .groupBy((c) => c.course_number)
     .value()
 
-  return _(byNumber)
-    .toPairs()
-    .map(([k, v]) => [k, { ...computeStatsByNumber(k, v), history: byNumber[k], number: k }])
+  const out = Object.entries(byNumber).map(([courseNumber, pastSemesters]) => ({
+    course_number: courseNumber,
+    info: { course_name: pastSemesters[0].course_name },
+    firehose: firehose[courseNumber],
+    history: pastSemesters,
+    computed: computeStatsByNumber(pastSemesters),
+  }))
+
+  return _(out)
+    .map((c) => [c.course_number, c])
     .fromPairs()
-    .value() as Record<
-    CourseNumber,
-    CourseComputedProperties & { history: CourseInfo[]; number: CourseNumber }
-  >
+    .value() as MainObject
 }
 
-const computeStatsByNumber = (
-  courseNumber: string,
-  history: CourseInfo[]
-): CourseComputedProperties => {
+export const process = (courses: FullCourseData[]) => {}
+
+const computeStatsByNumber = (history: SemesterCourseInfo[]): ComputedCourseProperties => {
   const overall = history.map((ci) => ci.ratings["Overall rating of the subject"]).filter((x) => x)
   const totalResponded = _.sum(overall.map((r) => r.responses))
   const totalAverage = _.sum(overall.map((r) => r.avg)) / overall.length
 
   const b = bayes({ totalAverage, totalResponded })
-  console.log(courseNumber, totalResponded, totalAverage)
   return { totalResponded, totalAverage, bayes: b }
 }
 
