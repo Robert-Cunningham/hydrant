@@ -14,7 +14,7 @@ export const MainTable = ({ search }: { search: string }) => {
 
   courses = _(courses)
     .filter((course) =>
-      JSON.stringify(course.history[0]?.course_name + course.history[0]?.course_number)
+      JSON.stringify(course.info.course_name + course.course_number)
         .toLowerCase()
         .includes(search.toLowerCase())
     )
@@ -27,18 +27,18 @@ export const MainTable = ({ search }: { search: string }) => {
           {
             title: "Course",
             sorting: false,
-            render: (c) => <TitleCell course={c.history[0]}></TitleCell>,
+            render: (c) => <TitleCell course={c.info}></TitleCell>,
             cellStyle: { width: "100vw" },
           },
           {
             title: "Composite Rating",
             field: "bayes",
             defaultSort: "desc",
-            render: (c) => Math.round(c.bayes * 100) / 100,
+            render: (c) => Math.round(c.computed.bayes * 100) / 100,
           },
         ]}
         detailPanel={({ rowData }) => <div>This class was a banger!</div>}
-        data={filtered}
+        data={courses}
         components={{
           Container: (props) => <Paper elevation={0} {...props}></Paper>,
         }}
