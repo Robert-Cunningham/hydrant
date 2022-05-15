@@ -1,21 +1,23 @@
 import MaterialTable from "@material-table/core"
 import { Paper } from "@material-ui/core"
 import _ from "lodash"
-import d from "./data.json"
-
-type CourseInfo = {
-  course_number: string
-  course_name: string
-}
+import { useMemo } from "react"
+import d from "./2018ish_data.json"
+import { CourseInfo, process } from "./data"
 
 export const MainTable = ({ search }: { search: string }) => {
-  const filtered = _(d as CourseInfo[])
+  const input = d as CourseInfo[]
+  const processed = useMemo(() => process(input), [])
+
+  //const withAdded = input.map((ci) => ({ ...ci, ...processed[ci.course_number] }))
+
+  const filtered = _(processed)
     .filter((course) =>
-      JSON.stringify(course.course_name + course.course_number)
+      JSON.stringify(course.history[0]?.course_name + course.history[0]?.course_number)
         .toLowerCase()
         .includes(search.toLowerCase())
     )
-    .value() as CourseInfo[]
+    .value()
 
   return (
     <div className="border-2 p-2 border-slate-200 rounded-md">
@@ -24,16 +26,17 @@ export const MainTable = ({ search }: { search: string }) => {
           {
             title: "Course",
             sorting: false,
-            render: (c: CourseInfo) => <TitleCell course={c}></TitleCell>,
+            render: (c) => <TitleCell course={c.history[0]}></TitleCell>,
             cellStyle: { width: "100vw" },
           },
           {
             title: "Composite Rating",
-            field: "eligible",
+            field: "bayes",
             defaultSort: "desc",
+            render: (c) => Math.round(c.bayes * 100) / 100,
           },
         ]}
-        detailPanel={({ rowData }: { rowData: CourseInfo }) => <div>This class was a banger!</div>}
+        detailPanel={({ rowData }) => <div>This class was a banger!</div>}
         data={filtered}
         components={{
           Container: (props) => <Paper elevation={0} {...props}></Paper>,
