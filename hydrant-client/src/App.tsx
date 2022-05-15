@@ -38,7 +38,7 @@ const MainList = () => {
 
 const Search = ({ search, setSearch }: { search: string; setSearch: (a0: string) => void }) => (
   <input
-    className="w-full rounded h-8 p-2 bg-slate-50 border-2 border-slate-100"
+    className="w-full rounded h-8 p-2 bg-slate-50 border-2 border-slate-200"
     value={search}
     onChange={(e) => setSearch(e.target.value)}
     autoFocus
