@@ -64,7 +64,7 @@ export const generateMainObject = (
 
   const out = Object.entries(byNumber).map(([courseNumber, pastSemesters]) => ({
     course_number: courseNumber,
-    info: { course_name: pastSemesters[0].course_name },
+    info: { course_name: pastSemesters[0].course_name, course_number: courseNumber },
     firehose: firehose[courseNumber],
     history: pastSemesters,
     computed: computeStatsByNumber(pastSemesters),

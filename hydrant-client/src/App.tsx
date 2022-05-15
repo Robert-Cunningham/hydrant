@@ -3,7 +3,6 @@ import { Route, Routes } from "react-router-dom"
 import { MainTable } from "./MainTable"
 import { Post } from "./Post"
 import { Sidebar } from "./Sidebar"
-import { FaGithub } from "react-icons/fa"
 import { Header } from "./Header"
 
 const App = () => {

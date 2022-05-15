@@ -32,7 +32,7 @@ export const MainTable = ({ search }: { search: string }) => {
           },
           {
             title: "Composite Rating",
-            field: "bayes",
+            field: "computed.bayes",
             defaultSort: "desc",
             render: (c) => (
               <span className="text-slate-900">{Math.round(c.computed.bayes * 100) / 100}</span>
@@ -50,7 +50,7 @@ export const MainTable = ({ search }: { search: string }) => {
         }}
         options={{
           toolbar: false,
-          pageSize: 10,
+          pageSize: 8,
           pageSizeOptions: [],
           showFirstLastPageButtons: false,
           headerStyle: { background: "inherit" },
