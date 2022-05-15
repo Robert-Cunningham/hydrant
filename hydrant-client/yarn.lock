@@ -675,6 +675,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-icons@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/react-icons/-/react-icons-3.0.0.tgz#27ca2823a6add881d06a371bfff093afc1b9c829"
+  integrity sha512-Vefs6LkLqF61vfV7AiAqls+vpR94q67gunhMueDznG+msAkrYgRxl7gYjNem/kZ+as2l2mNChmF1jRZzzQQtMg==
+  dependencies:
+    react-icons "*"
+
 "@types/react-redux@^7.1.20":
   version "7.1.24"
   resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-7.1.24.tgz#6caaff1603aba17b27d20f8ad073e4c077e975c0"
@@ -2266,6 +2273,11 @@ react-double-scrollbar@0.0.15:
   version "0.0.15"
   resolved "https://registry.yarnpkg.com/react-double-scrollbar/-/react-double-scrollbar-0.0.15.tgz#e915ab8cb3b959877075f49436debfdb04288fe4"
   integrity sha1-6RWrjLO5WYdwdfSUNt6/2wQoj+Q=
+
+react-icons@*, react-icons@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-4.3.1.tgz#2fa92aebbbc71f43d2db2ed1aed07361124e91ca"
+  integrity sha512-cB10MXLTs3gVuXimblAdI71jrJx8njrJZmNMEMC+sQu5B/BIOmlsAjskdqpn81y8UBVEGuHODd7/ci5DvoSzTQ==
 
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"

@@ -1,7 +1,7 @@
 import React from "react"
 import { BeakerIcon, HomeIcon, MusicNoteIcon, PencilIcon } from "@heroicons/react/solid"
 
-const iconStyles = "h-6 w-6 m-2 text-slate-500 group-hover:text-slate-700"
+const iconStyles = "h-6 w-6 m-2 text-slate-400 group-hover:text-slate-600"
 
 const links = [
   { text: "Home", link: "/", icon: <HomeIcon className={iconStyles}></HomeIcon> },
