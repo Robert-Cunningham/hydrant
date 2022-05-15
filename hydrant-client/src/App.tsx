@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { Route, Routes } from "react-router-dom"
 import { MainTable } from "./MainTable"
 import { Post } from "./Post"
+import { Box } from "@chakra-ui/react";
 
 const App = () => {
   return (
@@ -22,12 +23,16 @@ const Sidebar = () => <div className="col-span-2 bg-slate-200"></div>
 const MainList = () => {
   const [search, setSearch] = useState<string>("")
   return (
-    <div className="p-4 bg">
-      <div className="grid gap-4">
-        <Search {...{ search, setSearch }}></Search>
-        <MainTable {...{ search }}></MainTable>
-      </div>
-    </div>
+    // <div className="p-4 bg">
+    <Box p={4}>
+      <Box maxW="4xl" marginY={16} marginX="auto">
+        <div className="grid gap-4">
+          <Search {...{ search, setSearch }}></Search>
+          <MainTable {...{ search }}></MainTable>
+        </div>
+      </Box>
+    </Box>
+    // </div>
   )
 }
 

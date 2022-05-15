@@ -1,21 +1,40 @@
 import _ from "lodash"
+import produce from "immer"
+
+export enum CourseTerm {
+  FALL = "Fall",
+  SPRING = "Spring",
+  IAP = "IAP"
+}
 
 export type CourseInfo = {
   course_number: string
   course_name: string
+  term: CourseTerm
+  year: string
+  ratings: SemesterCourseInfo
 }
 
-export type Firehose = {} // straight from firehose
-export type SemesterCourseInfo = {
-  ratings: {
-    "Overall rating of the subject": RatingGroup
-  }
-} // straight from Ani's script
+export enum RatingType {
+  OVERALL_RATING = "Overall rating of the subject"
+}
+
+export type Firehose = {
+  sa: string   // same as
+  mw: string // meets with
+  [x: string]: any
+} // straight from firehose
+export type SemesterCourseInfo = Record<RatingType, RatingGroup>
+// export type SemesterCourseInfo = {
+//   ratings: {
+//     "Overall rating of the subject": RatingGroup
+//   }
+// } // straight from Ani's script
 
 export type FullCourseData = {
   course_number: CourseNumber
   info: CourseInfo // properties of the class, e.g. is it a HASS
-  firehose: Firehose // stuff straight from firehose
+  firehose: Firehose | undefined // stuff straight from firehose
   history: SemesterCourseInfo[] // historical rating data, teaching data, etc.
   computed: ComputedCourseProperties // bayes, ranking info, etc.
 }
@@ -55,7 +74,7 @@ const orGroupBy = <T>(list: T[], funcs: ((a0: T) => string)[]) => {
 }
 
 export const generateMainObject = (
-  scraped: (SemesterCourseInfo & CourseInfo)[],
+  scraped: CourseInfo[],
   firehose: Record<CourseNumber, Firehose>
 ): MainObject => {
   const byNumber = _(scraped)
@@ -76,9 +95,9 @@ export const generateMainObject = (
     .value() as MainObject
 }
 
-export const process = (courses: FullCourseData[]) => {}
+export const process = (courses: FullCourseData[]) => { }
 
-const computeStatsByNumber = (history: SemesterCourseInfo[]): ComputedCourseProperties => {
+const computeStatsByNumber = (history: CourseInfo[]): ComputedCourseProperties => {
   const overall = history.map((ci) => ci.ratings["Overall rating of the subject"]).filter((x) => x)
   const totalResponded = _.sum(overall.map((r) => r.responses))
   const totalAverage = _.sum(overall.map((r) => r.avg)) / overall.length
@@ -97,3 +116,66 @@ const bayes = ({
   totalAverage: number
   totalResponded: number
 }) => (responses * rating + c * globalAverage) / (responses + c)
+
+
+import hydrantRaw from "./models/hydrant/m2015.json"
+import firehoseRawFall from "./models/firehose/fall.json"
+import firehoseRawSpring from "./models/firehose/spring.json"
+import firehoseRawIAP from "./models/firehose/iap.json"
+
+/**
+ * Deduplicates subjects in `m` based on courses that are taught together / are joint subjects.
+ * 
+ * @param m a main object
+ * @returns another main object
+ */
+function deduplicateCourses(m: MainObject): MainObject {
+  const shouldRemove: Set<CourseNumber> = new Set();
+
+  _(m)
+    .toPairs()
+    .each(([number, data]) => {
+      if (shouldRemove.has(number)) {
+        return;
+      }
+
+      if (!data.firehose) {
+        return;
+      }
+
+      if (data.firehose.sa !== "") {
+        _(data.firehose.sa)
+          .split(", ")
+          .each((n: CourseNumber) => shouldRemove.add(n));
+      }
+
+      if (data.firehose.mw !== "") {
+        _(data.firehose.mw)
+          .split(", ")
+          .each((n: CourseNumber) => shouldRemove.add(n));
+      }
+    });
+
+  shouldRemove.forEach(n => { delete m[n]; });
+
+  return m;
+}
+
+type FirehoseRaw = Record<CourseNumber, Firehose>;
+
+/**
+ * Factory for fetching and processing raw data into 
+ * 
+ * @returns model data for Hydrant main table view
+ */
+export function makeHydrantModel(): MainObject {
+  const input = hydrantRaw as CourseInfo[]
+  return deduplicateCourses(
+    generateMainObject(input, _.merge(
+      <FirehoseRaw>firehoseRawFall,
+      <FirehoseRaw>firehoseRawIAP,
+      <FirehoseRaw>firehoseRawSpring
+    ))
+  );
+  // TODO(kosinw): Make this asynchronous using fetch
+}

@@ -1,18 +1,23 @@
 import MaterialTable from "@material-table/core"
 import { Paper } from "@material-ui/core"
-import { extractEventInfo } from "framer-motion/types/events/event-info"
 import _ from "lodash"
-import { useMemo } from "react"
-import d from "./2018ish_data.json"
-import { CourseInfo, generateMainObject, process, SemesterCourseInfo } from "./data"
+import { makeHydrantModel, FullCourseData } from "./data"
 
 export const MainTable = ({ search }: { search: string }) => {
-  const input = d as (SemesterCourseInfo & CourseInfo)[]
-  let mainObject = useMemo(() => generateMainObject(input, {}), [])
+  // const input = d as (SemesterCourseInfo & CourseInfo)[]
+  // let mainObject = useMemo(() => generateMainObject(input, {}), [])
+  // const mainObject = 
+  // let courses = Object.values(mainObject)
 
-  let courses = Object.values(mainObject)
-
-  courses = _(courses)
+  // courses = _(courses)
+  //   .filter((course) =>
+  //     JSON.stringify(course.info.course_name + course.course_number)
+  //       .toLowerCase()
+  //       .includes(search.toLowerCase())
+  //   )
+  //   .value()
+  const model = makeHydrantModel()
+  const courses = _(Object.values(model))
     .filter((course) =>
       JSON.stringify(course.info.course_name + course.course_number)
         .toLowerCase()
@@ -27,12 +32,12 @@ export const MainTable = ({ search }: { search: string }) => {
           {
             title: "Course",
             sorting: false,
-            render: (c) => <TitleCell course={c.info}></TitleCell>,
+            render: (c) => <TitleCell course={c}></TitleCell>,
             cellStyle: { width: "100vw" },
           },
           {
             title: "Composite Rating",
-            field: "bayes",
+            field: "computed.bayes",
             defaultSort: "desc",
             render: (c) => Math.round(c.computed.bayes * 100) / 100,
           },
@@ -60,9 +65,9 @@ export const MainTable = ({ search }: { search: string }) => {
   )
 }
 
-const TitleCell = ({ course }: { course: CourseInfo }) => (
+const TitleCell = ({ course }: { course: FullCourseData }) => (
   <div className="grid w-5/8 bg-slate-100">
     <p className="text-slate-700">{course.course_number}</p>
-    <p className="text-slate-400 text-sm truncate">{course.course_name}</p>
+    <p className="text-slate-400 text-sm truncate">{course.info.course_name}</p>
   </div>
 )
