@@ -2,12 +2,13 @@ import React, { useState } from "react"
 import { Route, Routes } from "react-router-dom"
 import { MainTable } from "./MainTable"
 import { Post } from "./Post"
+import { Sidebar } from "./Sidebar"
 
 const App = () => {
   return (
     <div className="h-screen w-full grid grid-cols-12">
       <Sidebar></Sidebar>
-      <div className="col-span-10 bg-slate-100">
+      <div className="col-span-10 bg-slate-50">
         <Routes>
           <Route path="/" element={<MainList></MainList>}></Route>
           <Route path="/post/:id" element={<Post></Post>}></Route>
@@ -16,8 +17,6 @@ const App = () => {
     </div>
   )
 }
-
-const Sidebar = () => <div className="col-span-2 bg-slate-200"></div>
 
 const MainList = () => {
   const [search, setSearch] = useState<string>("")
@@ -33,7 +32,7 @@ const MainList = () => {
 
 const Search = ({ search, setSearch }: { search: string; setSearch: (a0: string) => void }) => (
   <input
-    className="w-full rounded h-8 p-2 bg-slate-100 border-2"
+    className="w-full rounded h-8 p-2 bg-slate-50 border-2 border-slate-100"
     value={search}
     onChange={(e) => setSearch(e.target.value)}
     autoFocus
