@@ -21,6 +21,11 @@ export enum RatingType {
 export type Firehose = {
   sa: string   // same as
   mw: string // meets with
+  ci: boolean // ci-h?
+  cw: boolean // ci-hw?
+  ha: boolean // hass-a?
+  hs: boolean // hass-s?
+  hh: boolean // hass-h?
   [x: string]: any
 } // straight from firehose
 export type SemesterCourseInfo = Record<RatingType, RatingGroup>
@@ -89,6 +94,7 @@ export const generateMainObject = (
   }))
 
   return _(out)
+    .filter((c) => !isNaN(c.computed.bayes))
     .map((c) => [c.course_number, c])
     .fromPairs()
     .value() as MainObject
@@ -151,9 +157,16 @@ function deduplicateCourses(m: MainObject): MainObject {
       if (data.firehose.mw !== "") {
         _(data.firehose.mw)
           .split(", ")
-          .each((n: CourseNumber) => shouldRemove.add(n));
+          .each((n: CourseNumber) => {
+            // TODO(kosinw): Do some magic lodash fp merging shit
+            shouldRemove.add(n)
+          });
       }
     });
+  
+  if (shouldRemove.has("")) {
+    shouldRemove.delete("");
+  }
 
   shouldRemove.forEach(n => { delete m[n]; });
 
