@@ -1,17 +1,18 @@
 import MaterialTable from "@material-table/core"
 import { Paper } from "@material-ui/core"
+import { extractEventInfo } from "framer-motion/types/events/event-info"
 import _ from "lodash"
 import { useMemo } from "react"
 import d from "./2018ish_data.json"
-import { CourseInfo, process } from "./data"
+import { CourseInfo, generateMainObject, process, SemesterCourseInfo } from "./data"
 
 export const MainTable = ({ search }: { search: string }) => {
-  const input = d as CourseInfo[]
-  const processed = useMemo(() => process(input), [])
+  const input = d as (SemesterCourseInfo & CourseInfo)[]
+  let mainObject = useMemo(() => generateMainObject(input, {}), [])
 
-  //const withAdded = input.map((ci) => ({ ...ci, ...processed[ci.course_number] }))
+  let courses = Object.values(mainObject)
 
-  const filtered = _(processed)
+  courses = _(courses)
     .filter((course) =>
       JSON.stringify(course.history[0]?.course_name + course.history[0]?.course_number)
         .toLowerCase()

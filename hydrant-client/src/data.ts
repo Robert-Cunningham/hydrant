@@ -16,7 +16,7 @@ export type FullCourseData = {
   course_number: CourseNumber
   info: CourseInfo // properties of the class, e.g. is it a HASS
   firehose: Firehose // stuff straight from firehose
-  history: SemesterCourseInfo // historical rating data, teaching data, etc.
+  history: SemesterCourseInfo[] // historical rating data, teaching data, etc.
   computed: ComputedCourseProperties // bayes, ranking info, etc.
 }
 
