@@ -1,5 +1,4 @@
 import _ from "lodash"
-import produce from "immer"
 
 export enum CourseTerm {
   FALL = "Fall",
