@@ -25,7 +25,7 @@ const App = () => {
 const MainList = () => {
   const [search, setSearch] = useState<string>("")
   return (
-    <div className="p-4 h-[calc(100vh-theme(space.16))]">
+    <div className="p-4 h-[calc(100vh-theme(space.16))] overflow-auto">
       <div className="grid gap-4">
         <Search {...{ search, setSearch }}></Search>
         <MainTable {...{ search }}></MainTable>
@@ -36,7 +36,7 @@ const MainList = () => {
 
 const Search = ({ search, setSearch }: { search: string; setSearch: (a0: string) => void }) => (
   <input
-    className="w-full rounded h-8 p-2 bg-slate-50 border-2 border-slate-100"
+    className="w-full rounded h-8 p-2 bg-slate-50 border-2 border-slate-200"
     value={search}
     onChange={(e) => setSearch(e.target.value)}
     autoFocus
