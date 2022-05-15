@@ -26,7 +26,7 @@ export const MainTable = ({ search }: { search: string }) => {
     .value()
 
   return (
-    <div className="border-2 p-2 border-slate-200 rounded-md">
+    <div className="border-2 p-2 border-slate-100 rounded-md">
       <MaterialTable
         columns={[
           {
@@ -39,7 +39,9 @@ export const MainTable = ({ search }: { search: string }) => {
             title: "Composite Rating",
             field: "computed.bayes",
             defaultSort: "desc",
-            render: (c) => Math.round(c.computed.bayes * 100) / 100,
+            render: (c) => (
+              <span className="text-slate-900">{Math.round(c.computed.bayes * 100) / 100}</span>
+            ),
           },
         ]}
         detailPanel={({ rowData }) => <div>This class was a banger!</div>}
@@ -53,7 +55,7 @@ export const MainTable = ({ search }: { search: string }) => {
         }}
         options={{
           toolbar: false,
-          pageSize: 10,
+          pageSize: 8,
           pageSizeOptions: [],
           showFirstLastPageButtons: false,
           headerStyle: { background: "inherit" },
@@ -66,7 +68,7 @@ export const MainTable = ({ search }: { search: string }) => {
 }
 
 const TitleCell = ({ course }: { course: FullCourseData }) => (
-  <div className="grid w-5/8 bg-slate-100">
+  <div className="grid w-5/8 bg-slate-50">
     <p className="text-slate-700">{course.course_number}</p>
     <p className="text-slate-400 text-sm truncate">{course.info.course_name}</p>
   </div>
