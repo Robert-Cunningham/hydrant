@@ -61,12 +61,6 @@ type ComputedCourseProperties = {
   bayes: number
 }
 
-type CourseInformation = {
-  course_number: string
-  course_name: string
-  history: CourseInfo[]
-}
-
 const orGroupBy = <T>(list: T[], funcs: ((a0: T) => string)[]) => {
   let grouped = _.groupBy(list, funcs[0])
 
