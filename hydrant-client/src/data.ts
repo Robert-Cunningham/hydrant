@@ -3,10 +3,25 @@ import _ from "lodash"
 export type CourseInfo = {
   course_number: string
   course_name: string
+}
+
+export type Firehose = {} // straight from firehose
+export type SemesterCourseInfo = {
   ratings: {
     "Overall rating of the subject": RatingGroup
   }
-}
+} // straight from Ani's script
+
+export type MainObject = Record<
+  CourseNumber,
+  {
+    course_number: CourseNumber
+    info: CourseInfo // properties of the class, e.g. is it a HASS
+    firehose: Firehose // stuff straight from firehose
+    history: SemesterCourseInfo // historical rating data, teaching data, etc.
+    computed: ComputedCourseProperties // bayes, ranking info, etc.
+  }
+>
 
 export type RatingGroup = {
   avg: number
@@ -17,7 +32,7 @@ export type RatingGroup = {
 
 type CourseNumber = string
 
-type CourseComputedProperties = {
+type ComputedCourseProperties = {
   totalResponded: number
   totalAverage: number
   bayes: number
