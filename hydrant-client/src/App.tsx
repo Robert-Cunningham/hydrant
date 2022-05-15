@@ -25,10 +25,12 @@ const App = () => {
 const MainList = () => {
   const [search, setSearch] = useState<string>("")
   return (
-    <div className="p-4 h-[calc(100vh-theme(space.16))]">
-      <div className="grid gap-4">
-        <Search {...{ search, setSearch }}></Search>
-        <MainTable {...{ search }}></MainTable>
+    <div className="p-4 overflow-auto h-[calc(100vh-theme(space.16))]">
+      <div className="max-w-5xl mt-6 mx-auto">
+        <div className="grid gap-4">
+          <Search {...{ search, setSearch }}></Search>
+          <MainTable {...{ search }}></MainTable>
+        </div>
       </div>
     </div>
   )
