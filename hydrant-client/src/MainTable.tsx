@@ -38,8 +38,8 @@ const coursePredicates: Record<CourseTag, (x: FullCourseData) => boolean> = {
 
 const courses = {"1": "🌆", "2": "🔧", "3": "⚛️", "4":"🏙️", "5": "🧪", "6": "💻", "7": "🧬", "8":"⚛️", "9":"🧠",
                  "10": "⚗️", "11": "🌃", "12": "🌍", "14": "📈", "15": "💼", "16": "🚀", "17": "🗳️", "18": "🧮",
-                  "20": "🧪", "21M": "🎵", "21W": "📗", "21L": "📗", "21G":"🗣️", "22": "☢️", "24": "📙", "WGS:": "✨",
-                  "STS": "⚖️", undefined: "✨"}
+                  "20": "🧪", "21M": "🎵", "21W": "📗", "21L": "📗", "21H": "📗", "21A": "📗", "21G":"🗣️", "22": "☢️", "24": "📙", "WGS": "✨",
+                  "STS": "⚖️", undefined: "✨", "IDS": "📊"}
 const rankEmojis = ["👑", "😻", "👍", "👌", "🤔", "😨", "💀"]
 const termPredicates: Record<CourseTerm, (x: FullCourseData) => boolean> = {
   [CourseTerm.FALL]: (x: FullCourseData) =>
@@ -121,11 +121,12 @@ export const MainTable = ({ search }: { search: string }) => {
         //   return id.startsWith(search.toLowerCase())
         // }
 
-        if(search.startsWith("8.")){
-          return id.startsWith("8.")
-        } else if (search.includes("21.")){
+        if (search.includes("21.")){
           return id.startsWith("21")
-        }else {
+        }
+        else if(search.includes(".")){
+          return id.startsWith(search.toLowerCase());
+        } else {
           return id.includes(search.toLowerCase())
         }
       })
