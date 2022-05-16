@@ -80,7 +80,7 @@ export const MainTable = ({ search }: { search: string }) => {
       },
       _(courses)
     ).value()
-  }, [hassFilters])
+  }, [hassFilters, model])
 
   const finalCourses = React.useMemo(() => {
     return _(filteredCourses)
@@ -94,7 +94,7 @@ export const MainTable = ({ search }: { search: string }) => {
         return id.includes(search.toLowerCase())
       })
       .value()
-  }, [hassFilters, search])
+  }, [hassFilters, search, model])
 
   return (
     <VStack align="flex-start" spacing={4}>
@@ -105,8 +105,9 @@ export const MainTable = ({ search }: { search: string }) => {
         </HStack>
         <TermFilterGroup />
       </HStack>
-      <div className="border-2 p-2 border-slate-100 rounded-md">
+      <div className="border-2 p-2 border-slate-100 rounded-md w-full">
         <MaterialTable
+          isLoading={loading}
           columns={[
             {
               title: "Course",

@@ -117,33 +117,10 @@ const bayes = ({
   totalResponded: number
 }) => (responses * rating + c * globalAverage) / (responses + c)
 
-//import hydrantRaw from "./models/hydrant/m2015.json"
-//import firehoseRawFall from "./models/firehose/fall.json"
-//import firehoseRawSpring from "./models/firehose/spring.json"
-//import firehoseRawIAP from "./models/firehose/iap.json"
-
 const useData = async () => {
-  //const hydrantRawP = decodeAsync((await fetch("./models/hydrant/m2015.json.br")).body!)
   const hydrantRawP = fetch("./models/hydrant/m2015.json").then((x) => x.json()) as Promise<
     CourseInfo[]
   >
-  //const buf = Buffer.from(array)
-  //console.log(buf)
-  //const inflated = JSON.parse(pako.inflate(buf, { to: "string" }))
-  //console.log(unbuffed)
-  //console.log(inflated)
-
-  /*
-  (*
-  const hydrantRawP = Buffer.from(
-    pako.inflate(
-      Buffer.from(
-    )
-  ).toJSON()
-  */
-
-  //.then((x) => x.arrayBuffer())
-  //.then((x) => Buffer.from(decode(x)).toJSON()) as Promise<CourseInfo[]>
 
   const firehoseRawFallP = fetch("./models/firehose/fall.json").then((x) =>
     x.json()
