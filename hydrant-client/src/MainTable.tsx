@@ -36,6 +36,10 @@ const coursePredicates: Record<CourseTag, (x: FullCourseData) => boolean> = {
   [CourseTag.HH]: (x: FullCourseData) => (x.firehose ? x.firehose.hh : false),
 }
 
+const courses = {"1": "🌆", "2": "🔧", "3": "⚛️", "4":"🏙️", "5": "🧪", "6": "💻", "7": "🧬", "8":"⚛️", "9":"🧠",
+                 "10": "⚗️", "11": "🌃", "12": "🌍", "14": "📈", "15": "💼", "16": "🚀", "17": "🗳️", "18": "🧮",
+                  "20": "🧪", "21M": "🎵", "21W": "📗", "21L": "📗", "21G":"🗣️", "22": "☢️", "24": "📙", "WGS:": "✨",
+                  "STS": "⚖️", undefined: "✨"}
 const rankEmojis = ["👑", "😻", "👍", "👌", "🤔", "😨", "💀"]
 const termPredicates: Record<CourseTerm, (x: FullCourseData) => boolean> = {
   [CourseTerm.FALL]: (x: FullCourseData) =>
@@ -291,7 +295,7 @@ const TitleCell = ({ course }: { course: FullCourseData }) => (
       }`}
       aria-label="Class number"
     >
-      <p className="font-extrabold text-slate-700">{course.course_number}</p>
+      <p className="font-extrabold text-slate-700">{course.course_number + courses[course.course_number.slice(0, course.course_number.indexOf('.'))]}</p>
     </Tooltip>
     <Tooltip label={course.info.course_name} aria-label="Class name">
       <p className="text-slate-400 text-sm truncate">{course.info.course_name}</p>
