@@ -6,6 +6,12 @@ export enum CourseTerm {
   IAP = "IAP"
 }
 
+export enum TermAbbrev {
+  FALL = "FA",
+  SPRING = "SP",
+  IAP = "JA"
+}
+
 export type CourseInfo = {
   course_number: string
   course_name: string
@@ -26,6 +32,7 @@ export type Firehose = {
   ha: boolean // hass-a?
   hs: boolean // hass-s?
   hh: boolean // hass-h?
+  t: TermAbbrev[]
   [x: string]: any
 } // straight from firehose
 export type SemesterCourseInfo = Record<RatingType, RatingGroup>
