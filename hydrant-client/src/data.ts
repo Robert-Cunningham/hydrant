@@ -40,7 +40,7 @@ export type Firehose = {
   t: TermAbbrev[]
   [x: string]: any
 } // straight from firehose
-export type SemesterCourseInfo = Record<RatingType, RatingGroup>
+export type SemesterCourseInfo = Record<RatingType, RatingGroup> 
 // export type SemesterCourseInfo = {
 //   ratings: {
 //     "Overall rating of the subject": RatingGroup
@@ -52,7 +52,7 @@ export type FullCourseData = {
   course_number: CourseNumber
   info: CourseInfo // properties of the class, e.g. is it a HASS
   firehose: Firehose | undefined // stuff straight from firehose
-  history: SemesterCourseInfo[] // historical rating data, teaching data, etc.
+  history: CourseInfo[] // historical rating data, teaching data, etc.
   computed: ComputedCourseProperties // bayes, ranking info, etc.
   otherNumbers: CourseNumber[]
 }

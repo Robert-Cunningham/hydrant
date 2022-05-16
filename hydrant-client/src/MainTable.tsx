@@ -3,6 +3,7 @@ import { Paper } from "@material-ui/core"
 import _ from "lodash"
 import { makeHydrantModel, FullCourseData, CourseTerm, TermAbbrev, MainObject } from "./data"
 import { HStack, Tag, VStack, ButtonGroup, Button, Text, Spinner, Tooltip } from "@chakra-ui/react"
+import { CourseView } from "./CourseView"
 import React, { useEffect, useState } from "react"
 
 enum CourseTag {
@@ -340,4 +341,8 @@ const TagContainer = ({ course, semester }: { course: FullCourseData; semester?:
     </HStack>
   )
 }
-const DropDown = ({ course }: { course: FullCourseData }) => <p></p>
+const DropDown = ({ course }: { course: FullCourseData }) => (
+  <div>
+    <CourseView course={course} />
+  </div>
+)
