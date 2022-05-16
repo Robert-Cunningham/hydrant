@@ -54,7 +54,7 @@ export type Firehose = {
   pr: string
   [x: string]: any
 } // straight from firehose
-export type SemesterCourseInfo = Record<RatingType, RatingGroup> 
+export type SemesterCourseInfo = Record<RatingType, RatingGroup>
 // export type SemesterCourseInfo = {
 //   ratings: {
 //     "Overall rating of the subject": RatingGroup
@@ -139,8 +139,8 @@ const computeStatsByNumber = (history: CourseInfo[]): ComputedCourseProperties =
   const inclassHours = history.map((ci) => ci.inclass_hours).filter((x) => x)
   const outclassHours = history.map((ci) => ci.outclass_hours).filter((x) => x)
 
-  const inclassAverage = _.round(_.sum(inclassHours.map((r) => r.avg)) / inclassHours.length, 2)
-  const outclassAverage = _.round(_.sum(outclassHours.map((r) => r.avg)) / outclassHours.length, 2)
+  const inclassAverage = _.round(_.sum(inclassHours.map((r) => r.avg)) / inclassHours.length, 1)
+  const outclassAverage = _.round(_.sum(outclassHours.map((r) => r.avg)) / outclassHours.length, 1)
 
   const overallEnrollment = history.map((ci) => ci.eligible)
   const averageEnrollment = _.round(_.sum(overallEnrollment) / overallEnrollment.length , 2)

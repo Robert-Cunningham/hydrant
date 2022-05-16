@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react"
 import { CourseView } from "./CourseView"
 import React, { useEffect, useState } from "react"
+import { useWindowWidth } from "@react-hook/window-size"
 
 enum CourseTag {
   CI = "CI-H",
@@ -46,6 +47,50 @@ const coursePredicates: Record<CourseTag, (x: FullCourseData) => boolean> = {
   [CourseTag.HH]: (x: FullCourseData) => (x.firehose ? x.firehose.hh : false),
 }
 
+const courseEmojis = {
+  "1": "🌆",
+  "2": "🔧",
+  "3": "⚛️",
+  "4": "🏙️",
+  "5": "🧪",
+  "6": "💻",
+  "7": "🧬",
+  "8": "⚛️",
+  "9": "🧠",
+  "10": "⚗️",
+  "11": "🌃",
+  "12": "🌍",
+  "14": "📈",
+  "15": "💼",
+  "16": "🚀",
+  "17": "🗳️",
+  "18": "🔢",
+  "20": "🧪",
+  "21M": "🎵",
+  "21W": "📝",
+  "21L": "📗",
+  "21H": "📙",
+  "21A": "📘",
+  "21G": "🗣️",
+  "22": "☢️",
+  "24": "📙",
+  WGS: "✨",
+  STS: "⚖️",
+  IDS: "📊",
+  CMS: "😎",
+  ES: "⚙️",
+  CC: "🗣️",
+  undefined: "✨",
+  AS: "✨",
+  MAS: "😎",
+  NS: "🛥️",
+  HST: "🩺",
+  EM: "💼",
+  SCM: "🚢",
+  EC: "🌱",
+  SP: "📚",
+  CSB: "🧬",
+} as Record<string, string>
 const rankEmojis = ["👑", "😻", "👍", "👌", "🤔", "😨", "💀"]
 const termPredicates: Record<CourseTerm, (x: FullCourseData) => boolean> = {
   [CourseTerm.FALL]: (x: FullCourseData) =>
@@ -57,6 +102,10 @@ const termPredicates: Record<CourseTerm, (x: FullCourseData) => boolean> = {
 }
 
 export const MainTable = ({ search }: { search: string }) => {
+  const windowHeight = useWindowWidth()
+  const windowAtLeastLarge = windowHeight >= 1024
+  const windowAtLeastSmall = windowHeight >= 640
+
   const [loading, setLoading] = useState<boolean>(true)
   const [model, setModel] = useState<MainObject>({})
 
@@ -127,7 +176,13 @@ export const MainTable = ({ search }: { search: string }) => {
         //   return id.startsWith(search.toLowerCase())
         // }
 
-        return id.includes(search.toLowerCase())
+        if (search.includes("21.")) {
+          return id.startsWith("21")
+        } else if (search.includes(".")) {
+          return id.startsWith(search.toLowerCase())
+        } else {
+          return id.includes(search.toLowerCase())
+        }
       })
       .value()
   }, [search, filteredCourses])
@@ -146,8 +201,8 @@ export const MainTable = ({ search }: { search: string }) => {
     )
   }
 
-  return (
-    <VStack align="flex-start" spacing={4}>
+  /*
+
       <HStack width="100%" justify="space-between">
         <HStack spacing={2}>
           <CourseFilterGroup hassFilters={hassFilters} setHassFilters={setHassFilters} />
@@ -155,6 +210,15 @@ export const MainTable = ({ search }: { search: string }) => {
         </HStack>
         <TermFilterGroup filters={termFilters} setFilters={setTermFilters} />
       </HStack>
+  */
+
+  return (
+    <VStack align="flex-start" spacing={4}>
+      <div className="grid sm:grid-flow-col grid-flow-row gap-3 justify-between">
+        <CourseFilterGroup hassFilters={hassFilters} setHassFilters={setHassFilters} />
+        <CourseFilterGroup hass hassFilters={hassFilters} setHassFilters={setHassFilters} />
+        <TermFilterGroup filters={termFilters} setFilters={setTermFilters} />
+      </div>
       {finalCourses.length > 0 && !loading ? (
         <div className="border-2 p-2 border-slate-100 rounded-md">
           <MaterialTable
@@ -167,7 +231,7 @@ export const MainTable = ({ search }: { search: string }) => {
                 cellStyle: { width: "100vw" },
               },
               {
-                title: "Composite Rating",
+                title: "Rating",
                 field: "computed.bayes",
                 defaultSort: "desc",
                 render: (c) => (
@@ -190,9 +254,8 @@ export const MainTable = ({ search }: { search: string }) => {
                 ),
               },
               {
-                title: "Time Spent",
+                title: "Hours",
                 field: "computed.hours",
-                sorting: false,
                 render: (c) => (
                   <div className="grid w-5/8">
                     <span className="font-bold text-slate-900">{c.computed.hours}</span>
@@ -203,15 +266,21 @@ export const MainTable = ({ search }: { search: string }) => {
               {
                 title: "Semester",
                 sorting: false,
+                hidden: !windowAtLeastLarge,
                 render: (c) => <TagContainer semester course={c} />,
               },
               {
                 title: "Fulfills",
+                hidden: !windowAtLeastSmall,
                 sorting: false,
                 render: (c) => <TagContainer course={c} />,
               },
             ]}
-            detailPanel={({ rowData }) => <DropDown course={rowData}></DropDown>}
+            detailPanel={[
+              {
+                render: ({ rowData }) => <DropDown course={rowData}></DropDown>,
+              },
+            ]}
             data={finalCourses}
             components={{
               Container: (props) => <Paper elevation={0} {...props}></Paper>,
@@ -308,7 +377,10 @@ const TitleCell = ({ course }: { course: FullCourseData }) => (
       }`}
       aria-label="Class number"
     >
-      <p className="font-extrabold text-slate-700">{course.course_number}</p>
+      <p className="font-extrabold text-slate-700">
+        {course.course_number +
+          courseEmojis[course.course_number.slice(0, course.course_number.indexOf("."))]}
+      </p>
     </Tooltip>
     <Tooltip label={course.info.course_name} aria-label="Class name">
       <p className="text-slate-400 text-sm truncate">{course.info.course_name}</p>

@@ -166,6 +166,8 @@ for future in as_completed(futures):
     resp = future.result()
     print(resp.status_code)
 
+    print(resp)
+
     try:
         process_link(resp, future.meta_text)
     except Exception as e:
