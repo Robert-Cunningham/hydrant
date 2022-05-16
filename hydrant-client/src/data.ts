@@ -1,9 +1,10 @@
 import _ from "lodash"
+import { useMemo } from "react"
 
 export enum CourseTerm {
   FALL = "Fall",
   SPRING = "Spring",
-  IAP = "IAP"
+  IAP = "IAP",
 }
 
 export enum TermAbbrev {
@@ -21,11 +22,11 @@ export type CourseInfo = {
 }
 
 export enum RatingType {
-  OVERALL_RATING = "Overall rating of the subject"
+  OVERALL_RATING = "Overall rating of the subject",
 }
 
 export type Firehose = {
-  sa: string   // same as
+  sa: string // same as
   mw: string // meets with
   ci: boolean // ci-h?
   cw: boolean // ci-hw?
@@ -68,12 +69,6 @@ type ComputedCourseProperties = {
   bayes: number
 }
 
-type CourseInformation = {
-  course_number: string
-  course_name: string
-  history: CourseInfo[]
-}
-
 const orGroupBy = <T>(list: T[], funcs: ((a0: T) => string)[]) => {
   let grouped = _.groupBy(list, funcs[0])
 
@@ -109,7 +104,7 @@ export const generateMainObject = (
     .value() as MainObject
 }
 
-export const process = (courses: FullCourseData[]) => { }
+export const process = (courses: FullCourseData[]) => {}
 
 const computeStatsByNumber = (history: CourseInfo[]): ComputedCourseProperties => {
   const overall = history.map((ci) => ci.ratings["Overall rating of the subject"]).filter((x) => x)
@@ -131,36 +126,55 @@ const bayes = ({
   totalResponded: number
 }) => (responses * rating + c * globalAverage) / (responses + c)
 
+const useData = async () => {
+  const hydrantRawP = fetch("./models/hydrant/m2015.json").then((x) => x.json()) as Promise<
+    CourseInfo[]
+  >
 
-import hydrantRaw from "./models/hydrant/m2015.json"
-import firehoseRawFall from "./models/firehose/fall.json"
-import firehoseRawSpring from "./models/firehose/spring.json"
-import firehoseRawIAP from "./models/firehose/iap.json"
+  const firehoseRawFallP = fetch("./models/firehose/fall.json").then((x) =>
+    x.json()
+  ) as Promise<FirehoseRaw>
+  const firehoseRawSpringP = fetch("./models/firehose/spring.json").then((x) =>
+    x.json()
+  ) as Promise<FirehoseRaw>
+  const firehoseRawIAPP = fetch("./models/firehose/iap.json").then((x) =>
+    x.json()
+  ) as Promise<FirehoseRaw>
+
+  const [hydrantRaw, firehoseRawFall, firehoseRawSpring, firehoseRawIAP] = await Promise.all([
+    hydrantRawP,
+    firehoseRawFallP,
+    firehoseRawSpringP,
+    firehoseRawIAPP,
+  ])
+
+  return { hydrantRaw, firehoseRawFall, firehoseRawSpring, firehoseRawIAP }
+}
 
 /**
  * Deduplicates subjects in `m` based on courses that are taught together / are joint subjects.
- * 
+ *
  * @param m a main object
  * @returns another main object
  */
 function deduplicateCourses(m: MainObject): MainObject {
-  const shouldRemove: Set<CourseNumber> = new Set();
+  const shouldRemove: Set<CourseNumber> = new Set()
 
   _(m)
     .toPairs()
     .each(([number, data]) => {
       if (shouldRemove.has(number)) {
-        return;
+        return
       }
 
       if (!data.firehose) {
-        return;
+        return
       }
 
       if (data.firehose.sa !== "") {
         _(data.firehose.sa)
           .split(", ")
-          .each((n: CourseNumber) => shouldRemove.add(n));
+          .each((n: CourseNumber) => shouldRemove.add(n))
       }
 
       if (data.firehose.mw !== "") {
@@ -169,34 +183,41 @@ function deduplicateCourses(m: MainObject): MainObject {
           .each((n: CourseNumber) => {
             // TODO(kosinw): Do some magic lodash fp merging shit
             shouldRemove.add(n)
-          });
+          })
       }
-    });
-  
+    })
+
   if (shouldRemove.has("")) {
-    shouldRemove.delete("");
+    shouldRemove.delete("")
   }
 
-  shouldRemove.forEach(n => { delete m[n]; });
+  shouldRemove.forEach((n) => {
+    delete m[n]
+  })
 
-  return m;
+  return m
 }
 
-type FirehoseRaw = Record<CourseNumber, Firehose>;
+type FirehoseRaw = Record<CourseNumber, Firehose>
 
 /**
- * Factory for fetching and processing raw data into 
- * 
+ * Factory for fetching and processing raw data into
+ *
  * @returns model data for Hydrant main table view
  */
-export function makeHydrantModel(): MainObject {
+export async function makeHydrantModel(): Promise<MainObject> {
+  console.log("making hydrant model")
+  const { hydrantRaw, firehoseRawFall, firehoseRawIAP, firehoseRawSpring } = await useData()
   const input = hydrantRaw as CourseInfo[]
   return deduplicateCourses(
-    generateMainObject(input, _.merge(
-      <FirehoseRaw>firehoseRawFall,
-      <FirehoseRaw>firehoseRawIAP,
-      <FirehoseRaw>firehoseRawSpring
-    ))
-  );
+    generateMainObject(
+      input,
+      _.merge(
+        <FirehoseRaw>firehoseRawFall,
+        <FirehoseRaw>firehoseRawIAP,
+        <FirehoseRaw>firehoseRawSpring
+      )
+    )
+  )
   // TODO(kosinw): Make this asynchronous using fetch
 }
