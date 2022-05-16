@@ -1,9 +1,9 @@
 import MaterialTable from "@material-table/core"
 import { Paper } from "@material-ui/core"
 import _ from "lodash"
-import { makeHydrantModel, FullCourseData, CourseTerm, TermAbbrev } from "./data"
+import { makeHydrantModel, FullCourseData, CourseTerm, TermAbbrev, MainObject } from "./data"
 import { HStack, Tag, VStack, ButtonGroup, Button, Text } from "@chakra-ui/react"
-import React from "react"
+import React, { useEffect, useState } from "react"
 
 enum CourseTag {
   CI = "CI-H",
@@ -46,7 +46,17 @@ const termPredicates: Record<CourseTerm, (x: FullCourseData) => boolean> = {
 }
 
 export const MainTable = ({ search }: { search: string }) => {
-  const model = makeHydrantModel()
+  const [loading, setLoading] = useState<boolean>(true)
+  const [model, setModel] = useState<MainObject>({})
+
+  useEffect(() => {
+    ;(async () => {
+      const model = await makeHydrantModel()
+      setModel(model)
+      setLoading(false)
+    })()
+  }, [])
+
   const courses = Object.values(model)
 
   const [hassFilters, setHassFilters] = React.useState<Record<CourseTag, boolean>>(
@@ -69,6 +79,15 @@ export const MainTable = ({ search }: { search: string }) => {
     ]
 
     // TODO(kosinw): Use some higher order functions or some crap to get rid of this FP hell
+    // return _(courses)
+    //   .filter((course) =>
+    //     _(hassFilters)
+    //       .toPairs()
+    //       .filter(([tag, active]) => [CourseTag.CI, CourseTag.CW].includes(tag as CourseTag))
+    //       .map(([tag, active]: [CourseTag, boolean]) => !active ? false : coursePredicates[tag](course))
+    //       .some(x => x)
+    //   )
+    //   .value();
     return _.reduce(
       filterGroups,
       (courses, group) => {
@@ -106,7 +125,7 @@ export const MainTable = ({ search }: { search: string }) => {
         return id.includes(search.toLowerCase())
       })
       .value()
-  }, [filteredCourses, search])
+  }, [hassFilters, search, model])
 
   return (
     <VStack align="flex-start" spacing={4}>
@@ -117,9 +136,10 @@ export const MainTable = ({ search }: { search: string }) => {
         </HStack>
         <TermFilterGroup filters={termFilters} setFilters={setTermFilters} />
       </HStack>
-      {finalCourses.length > 0 ? (
+      {finalCourses.length > 0 && !loading ? (
         <div className="border-2 p-2 border-slate-100 rounded-md">
           <MaterialTable
+            isLoading={loading}
             columns={[
               {
                 title: "Course",
@@ -176,8 +196,12 @@ export const MainTable = ({ search }: { search: string }) => {
         </div>
       ) : (
         <VStack paddingTop={12} align="center" justify="center" width="100%">
-          <Text fontWeight="bold" fontSize="4xl">No courses found 💁‍♀️!</Text>
-          <Text color="slategrey" fontSize="md">Try using different search terms or changing your filters.</Text>
+          <Text fontWeight="bold" fontSize="4xl">
+            No courses found 💁‍♀️!
+          </Text>
+          <Text color="slategrey" fontSize="md">
+            Try using different search terms or changing your filters.
+          </Text>
         </VStack>
       )}
     </VStack>
@@ -291,5 +315,4 @@ const TagContainer = ({ course, semester }: { course: FullCourseData; semester?:
     </HStack>
   )
 }
-
 const DropDown = ({ course }: { course: FullCourseData }) => <p></p>
