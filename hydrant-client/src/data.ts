@@ -10,7 +10,7 @@ export enum CourseTerm {
 export enum TermAbbrev {
   FALL = "FA",
   SPRING = "SP",
-  IAP = "JA"
+  IAP = "JA",
 }
 
 export type CourseInfo = {
@@ -19,6 +19,8 @@ export type CourseInfo = {
   term: CourseTerm
   year: string
   ratings: SemesterCourseInfo
+  inclass_hours: RatingGroup
+  outclass_hours: RatingGroup
 }
 
 export enum RatingType {
@@ -33,6 +35,9 @@ export type Firehose = {
   ha: boolean // hass-a?
   hs: boolean // hass-s?
   hh: boolean // hass-h?
+  u1: number
+  u2: number
+  u3: number
   t: TermAbbrev[]
   [x: string]: any
 } // straight from firehose
@@ -67,6 +72,9 @@ type ComputedCourseProperties = {
   totalResponded: number
   totalAverage: number
   bayes: number
+  inclassHours: number
+  outclassHours: number
+  hours: number
 }
 
 const orGroupBy = <T>(list: T[], funcs: ((a0: T) => string)[]) => {
@@ -111,8 +119,21 @@ const computeStatsByNumber = (history: CourseInfo[]): ComputedCourseProperties =
   const totalResponded = _.sum(overall.map((r) => r.responses))
   const totalAverage = _.sum(overall.map((r) => r.avg)) / overall.length
 
+  const inclassHours = history.map((ci) => ci.inclass_hours).filter((x) => x)
+  const outclassHours = history.map((ci) => ci.outclass_hours).filter((x) => x)
+
+  const inclassAverage = _.round(_.sum(inclassHours.map((r) => r.avg)) / inclassHours.length, 2)
+  const outclassAverage = _.round(_.sum(outclassHours.map((r) => r.avg)) / outclassHours.length, 2)
+
   const b = bayes({ totalAverage, totalResponded })
-  return { totalResponded, totalAverage, bayes: b }
+  return {
+    totalResponded,
+    totalAverage,
+    bayes: b,
+    inclassHours: inclassAverage,
+    outclassHours: outclassAverage,
+    hours: inclassAverage + outclassAverage,
+  }
 }
 
 const c = 25

@@ -1,9 +1,10 @@
-import React, { useState } from "react"
+import React, { useState, useMemo, useEffect } from "react"
 import { Route, Routes } from "react-router-dom"
 import { MainTable } from "./MainTable"
 import { Post } from "./Post"
 import { Sidebar } from "./Sidebar"
 import { Header } from "./Header"
+import _ from "lodash"
 
 const App = () => {
   return (
@@ -24,12 +25,25 @@ const App = () => {
 
 const MainList = () => {
   const [search, setSearch] = useState<string>("")
+  const [delayedSearch, setDelayedSearch] = useState<string>("");
+
+  const searchHandler = (v: string) => { setDelayedSearch(v); }
+  const debouncedSearch = useMemo(() => _.debounce(searchHandler, 500), [])
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    }
+  }, []);
+
+  useEffect(() => { debouncedSearch(search); }, [search]);
+
   return (
     <div className="p-4 overflow-auto h-[calc(100vh-theme(space.16))]">
       <div className="max-w-5xl mt-6 mx-auto">
         <div className="grid gap-4">
           <Search {...{ search, setSearch }}></Search>
-          <MainTable {...{ search }}></MainTable>
+          <MainTable {...{ search: delayedSearch }}></MainTable>
         </div>
       </div>
     </div>

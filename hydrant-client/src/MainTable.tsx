@@ -2,7 +2,7 @@ import MaterialTable from "@material-table/core"
 import { Paper } from "@material-ui/core"
 import _ from "lodash"
 import { makeHydrantModel, FullCourseData, CourseTerm, TermAbbrev, MainObject } from "./data"
-import { HStack, Tag, VStack, ButtonGroup, Button, Text } from "@chakra-ui/react"
+import { HStack, Tag, VStack, ButtonGroup, Button, Text, Spinner } from "@chakra-ui/react"
 import React, { useEffect, useState } from "react"
 
 enum CourseTag {
@@ -33,6 +33,7 @@ const coursePredicates: Record<CourseTag, (x: FullCourseData) => boolean> = {
   [CourseTag.HA]: (x: FullCourseData) => (x.firehose ? x.firehose.ha : false),
   [CourseTag.HS]: (x: FullCourseData) => (x.firehose ? x.firehose.hs : false),
   [CourseTag.HH]: (x: FullCourseData) => (x.firehose ? x.firehose.hh : false),
+  [CourseTag.GIR]: (x: FullCourseData) => (x.firehose ? x.firehose.f : false)
 }
 
 const rankEmojis = ["👑", "😻", "👍", "👌", "🤔", "😨", "💀"]
@@ -70,7 +71,7 @@ export const MainTable = ({ search }: { search: string }) => {
       Object.values(CourseTerm).map((tag): [CourseTerm, boolean] => [tag, false])
     ) as Record<CourseTerm, boolean>),
     [CourseTerm.FALL]: true,
-    [CourseTerm.SPRING]: true
+    [CourseTerm.SPRING]: true,
   })
 
   const filteredCourses = React.useMemo(() => {
@@ -112,7 +113,7 @@ export const MainTable = ({ search }: { search: string }) => {
           .some(_.identity)
       })
       .value()
-  }, [hassFilters, termFilters])
+  }, [hassFilters, termFilters, model])
 
   const finalCourses = React.useMemo(() => {
     return _(filteredCourses)
@@ -126,7 +127,21 @@ export const MainTable = ({ search }: { search: string }) => {
         return id.includes(search.toLowerCase())
       })
       .value()
-  }, [hassFilters, search, model])
+  }, [search, filteredCourses])
+
+  if (loading) {
+    return (
+      <VStack align="center" justify="center" marginTop={24}>
+        <Text fontWeight="bold" fontSize="4xl">
+          Loading...
+        </Text>
+        <Text color="slategrey" fontSize="md">
+          Currently downloading course data.
+        </Text>
+        <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="messenger" size="xl" />
+      </VStack>
+    )
+  }
 
   return (
     <VStack align="flex-start" spacing={4}>
@@ -165,14 +180,25 @@ export const MainTable = ({ search }: { search: string }) => {
                 ),
               },
               {
-                title: "Tags",
+                title: "Time Spent",
+                field: "computed.hours",
                 sorting: false,
-                render: (c) => <TagContainer course={c} />,
+                render: (c) => (
+                  <div className="grid w-5/8">
+                    <span className="font-bold text-slate-900">{c.computed.hours}</span>
+                    <span className="text-xs font-light text-slate-600">hours</span>
+                  </div>
+                ),
               },
               {
                 title: "Semester",
                 sorting: false,
                 render: (c) => <TagContainer semester course={c} />,
+              },
+              {
+                title: "Fulfills",
+                sorting: false,
+                render: (c) => <TagContainer course={c} />,
               },
             ]}
             detailPanel={({ rowData }) => <DropDown course={rowData}></DropDown>}
