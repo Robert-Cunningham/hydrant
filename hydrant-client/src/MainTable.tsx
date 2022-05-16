@@ -99,9 +99,9 @@ export const MainTable = ({ search }: { search: string }) => {
       .filter((course) => {
         const id = `${course.course_number}|${course.info.course_name}`.toLowerCase()
 
-        if (!isNaN(parseInt(search.at(0) as string))) {
-          return id.startsWith(search.toLowerCase())
-        }
+        // if (!isNaN(parseInt(search.at(0) as string))) {
+        //   return id.startsWith(search.toLowerCase())
+        // }
 
         return id.includes(search.toLowerCase())
       })
