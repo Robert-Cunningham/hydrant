@@ -1,4 +1,4 @@
-import _ from "lodash"
+import _, { times } from "lodash"
 
 export enum Units {
   Six = "<= 6",
@@ -96,6 +96,7 @@ type ComputedCourseProperties = {
   averageEnrollment: number
   lastEnrollment: number
   bayes: number
+  ewmaBayes: number
   inclassHours: number
   outclassHours: number
   hours: number
@@ -151,23 +152,74 @@ const computeStatsByNumber = (history: CourseInfo[]): ComputedCourseProperties =
   const outclassAverage = _.round(_.sum(outclassHours.map((r) => r.avg)) / outclassHours.length, 1)
 
   const overallEnrollment = history.map((ci) => ci.eligible)
-  const averageEnrollment = _.round(_.sum(overallEnrollment) / overallEnrollment.length , 2)
+  const averageEnrollment = _.round(_.sum(overallEnrollment) / overallEnrollment.length, 2)
 
   const b = bayes({ totalAverage, totalResponded })
+  const a = ewmaBayes(history)
   return {
     totalResponded,
     totalAverage,
     bayes: b,
+    ewmaBayes: a,
     inclassHours: inclassAverage,
     outclassHours: outclassAverage,
     hours: inclassAverage + outclassAverage,
     averageEnrollment,
-    lastEnrollment: _.first(overallEnrollment) || 0
+    lastEnrollment: _.first(overallEnrollment) || 0,
   }
 }
 
 const c = 25
-const globalAverage = 5.817570423309168
+//const globalAverage = 5.817570423309168
+const globalAverage = 5.78
+
+const courseTimeToInt = ({ term, year }: { term: CourseTerm; year: string }) => {
+  const courseTime = 2 * parseInt(year) + (term === CourseTerm.FALL ? 1 : 0)
+  return courseTime
+}
+
+const timeSince = ({ term, year }: { term: CourseTerm; year: string }) => {
+  return courseTimeToInt({ term: CourseTerm.FALL, year: "2022" }) - courseTimeToInt({ term, year })
+}
+
+const ewmaBayes = (history: CourseInfo[]) => {
+  //console.log("ts", timeSince({ year: "2020", term: CourseTerm.FALL }))
+  //console.log(history)
+  const rankedHistory = history.filter((h) => h.ratings["Overall rating of the subject"])
+  const adjustedEnrollment = _(rankedHistory)
+    .map((h) => {
+      if (history[0].course_number === "11.011") {
+        console.log(h, timeSince(h), Math.pow(0.95, timeSince(h)))
+      }
+      return Math.pow(0.95, timeSince(h)) * h.ratings["Overall rating of the subject"].responses
+    })
+    .sum()
+
+  const adjustedRating = _(rankedHistory)
+    .map(
+      (h) =>
+        Math.pow(0.95, timeSince(h)) *
+        h.ratings["Overall rating of the subject"].responses *
+        h.ratings["Overall rating of the subject"]?.avg
+    )
+    .sum()
+
+  //console.log(adjustedEnrollment, adjustedRating)
+
+  const out = bayes({
+    totalAverage: adjustedRating / adjustedEnrollment,
+    totalResponded: adjustedEnrollment,
+  })
+
+  if (history[0].course_number === "11.011") {
+    console.log(history)
+    console.log(adjustedEnrollment)
+    console.log(adjustedRating)
+    console.log(out)
+  }
+
+  return out
+}
 
 const bayes = ({
   totalResponded: responses,

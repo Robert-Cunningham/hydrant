@@ -264,7 +264,7 @@ export const MainTable = ({ search }: { search: string }) => {
               },
               {
                 title: "Rating",
-                field: "computed.bayes",
+                field: "computed.ewmaBayes",
                 defaultSort: "desc",
                 render: (c) => (
                   <Tooltip
@@ -278,9 +278,12 @@ export const MainTable = ({ search }: { search: string }) => {
                   >
                     <div className="grid w-5/8">
                       <span className="font-bold text-slate-900">
-                        {Math.round(c.computed.bayes * 100) / 100 +
+                        {Math.round(c.computed.ewmaBayes * 100) / 100 +
                           rankEmojis[
-                            Math.min(Math.floor(7 - c.computed.bayes) * 2, rankEmojis.length - 1)
+                            Math.min(
+                              Math.floor(7 - c.computed.ewmaBayes) * 2,
+                              rankEmojis.length - 1
+                            )
                           ]}
                       </span>
                       <span className="text-xs font-light text-slate-600">out of 7</span>
@@ -437,9 +440,11 @@ const TitleCell = ({ course }: { course: FullCourseData }) => (
       }`}
       aria-label="Class number"
     >
-      <p className="font-extrabold text-slate-700">
-        {course.course_number +
-          courseEmojis[course.course_number.slice(0, course.course_number.indexOf("."))]}
+      <p>
+        <span className="mr-1">
+          {courseEmojis[course.course_number.slice(0, course.course_number.indexOf("."))]}
+        </span>
+        <span className="font-extrabold text-slate-700">{course.course_number}</span>
       </p>
     </Tooltip>
     <Tooltip label={course.info.course_name} aria-label="Class name">
