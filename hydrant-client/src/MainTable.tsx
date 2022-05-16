@@ -1,7 +1,7 @@
 import MaterialTable from "@material-table/core"
 import { Paper } from "@material-ui/core"
 import _ from "lodash"
-import { makeHydrantModel, FullCourseData, CourseTerm, TermAbbrev, MainObject } from "./data"
+import { makeHydrantModel, FullCourseData, CourseTerm, TermAbbrev, MainObject, Units } from "./data"
 import {
   HStack,
   Tag,
@@ -37,6 +37,13 @@ const termColorMap: Record<CourseTerm, string> = {
   [CourseTerm.FALL]: "orange",
   [CourseTerm.SPRING]: "green",
   [CourseTerm.IAP]: "blue",
+}
+
+const unitsColorMap: Record<Units, string> = {
+  [Units.Six]: "orange",
+  [Units.Nine]: "green",
+  [Units.Twelve]: "blue",
+  [Units.TwelvePlus]: "blue",
 }
 
 const coursePredicates: Record<CourseTag, (x: FullCourseData) => boolean> = {
@@ -133,6 +140,13 @@ export const MainTable = ({ search }: { search: string }) => {
     [CourseTerm.SPRING]: true,
   })
 
+  const [unitFilters, setUnitFilters] = React.useState<Record<Units, boolean>>(
+    _.fromPairs(Object.values(Units).map((tag): [Units, boolean] => [tag, false])) as Record<
+      Units,
+      boolean
+    >
+  )
+
   const filteredCourses = React.useMemo(() => {
     const filterGroups: CourseTag[][] = [
       [CourseTag.CI, CourseTag.CW],
@@ -140,7 +154,7 @@ export const MainTable = ({ search }: { search: string }) => {
     ]
 
     // TODO(kosinw): Use some higher order functions or some crap to get rid of this FP hell
-    return _.reduce(
+    let out = _.reduce(
       filterGroups,
       (courses, group) => {
         if (!_.some(group, (x) => hassFilters[x])) {
@@ -163,7 +177,24 @@ export const MainTable = ({ search }: { search: string }) => {
           .some(_.identity)
       })
       .value()
-  }, [hassFilters, termFilters, model])
+
+    if (_(unitFilters).values().some()) {
+      out = out.filter((o) => {
+        const units = o.firehose!.u1 + o.firehose!.u2 + o.firehose!.u3
+        if (units <= 6) {
+          return unitFilters[Units.Six]
+        } else if (units > 6 && units <= 9) {
+          return unitFilters[Units.Nine]
+        } else if (units > 9 && units <= 12) {
+          return unitFilters[Units.Twelve]
+        } else if (units > 12) {
+          return unitFilters[Units.TwelvePlus]
+        }
+      })
+    }
+
+    return out
+  }, [hassFilters, termFilters, unitFilters, model])
 
   const finalCourses = React.useMemo(() => {
     return _(filteredCourses)
@@ -218,6 +249,7 @@ export const MainTable = ({ search }: { search: string }) => {
         <CourseFilterGroup hassFilters={hassFilters} setHassFilters={setHassFilters} />
         <CourseFilterGroup hass hassFilters={hassFilters} setHassFilters={setHassFilters} />
         <TermFilterGroup filters={termFilters} setFilters={setTermFilters} />
+        <UnitFilterGroup filters={unitFilters} setFilters={setUnitFilters} />
       </div>
       {finalCourses.length > 0 && !loading ? (
         <div className="border-2 p-2 border-slate-100 rounded-md">
@@ -239,7 +271,10 @@ export const MainTable = ({ search }: { search: string }) => {
                     aria-label="ranking"
                     label={`Average Enrollment: ${
                       c.computed.averageEnrollment
-                    }, Average Rating: ${_.round(c.computed.totalAverage, 2)}, Enrollment Last Term: ${c.computed.lastEnrollment}`}
+                    }, Average Rating: ${_.round(
+                      c.computed.totalAverage,
+                      2
+                    )}, Enrollment Last Term: ${c.computed.lastEnrollment}`}
                   >
                     <div className="grid w-5/8">
                       <span className="font-bold text-slate-900">
@@ -349,6 +384,11 @@ type TermFilterGroupProps = {
   setFilters: React.Dispatch<React.SetStateAction<Record<CourseTerm, boolean>>>
 }
 
+type UnitFilterGroupProps = {
+  filters: Record<Units, boolean>
+  setFilters: React.Dispatch<React.SetStateAction<Record<Units, boolean>>>
+}
+
 const TermFilterGroup = (props: TermFilterGroupProps) => {
   return (
     <ButtonGroup size="sm" isAttached colorScheme="messenger" variant="outline">
@@ -363,6 +403,26 @@ const TermFilterGroup = (props: TermFilterGroupProps) => {
           variant={props.filters[term] ? "solid" : "outline"}
         >
           {term}
+        </Button>
+      ))}
+    </ButtonGroup>
+  )
+}
+
+const UnitFilterGroup = (props: UnitFilterGroupProps) => {
+  return (
+    <ButtonGroup size="sm" isAttached colorScheme="messenger" variant="outline">
+      {Object.values(Units).map((units) => (
+        <Button
+          onClick={(e) => {
+            e.preventDefault()
+            props.setFilters({ ...props.filters, [units]: !props.filters[units] })
+          }}
+          colorScheme={unitsColorMap[units]}
+          key={units}
+          variant={props.filters[units] ? "solid" : "outline"}
+        >
+          {units}
         </Button>
       ))}
     </ButtonGroup>

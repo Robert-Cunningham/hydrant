@@ -1,5 +1,12 @@
 import _ from "lodash"
 
+export enum Units {
+  Six = "<= 6",
+  Nine = "9",
+  Twelve = "12",
+  TwelvePlus = "> 12",
+}
+
 export enum CourseTerm {
   FALL = "Fall",
   SPRING = "Spring",
