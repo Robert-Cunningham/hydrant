@@ -32,6 +32,7 @@ export const MainTable = ({ search }: { search: string }) => {
   const [hassH, setHassH] = React.useState(false);
   const [ciH, setCiH] = React.useState(false);
   const [ciHW, setCiHW] = React.useState(false);
+  const rankEmojis = ["👑", "😻", "👍", "🤔", "😨", "💀"];
 
   return (
     <VStack align="flex-start" spacing={4}>
@@ -68,7 +69,7 @@ export const MainTable = ({ search }: { search: string }) => {
               render: (c) => (
                 <div className="grid w-5/8">
                   <span className="font-bold text-slate-900">
-                    {Math.round(c.computed.bayes * 100) / 100}
+                    {Math.round(c.computed.bayes * 100) / 100 + rankEmojis[Math.min(7 - Math.floor(c.computed.bayes), rankEmojis.length - 1)]}
                   </span>
                   <span className="text-xs font-light text-slate-600">
                     out of 7
@@ -157,6 +158,7 @@ const TermFilterGroup = () => {
     </ButtonGroup>
   );
 };
+
 
 const TitleCell = ({ course }: { course: FullCourseData }) => (
   <div className="grid w-5/8">
