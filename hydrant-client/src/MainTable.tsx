@@ -67,6 +67,8 @@ export const MainTable = ({ search }: { search: string }) => {
       [CourseTag.HA, CourseTag.HH, CourseTag.HS],
     ]
 
+  const rankEmojis = ["👑", "😻", "👍", "🤔", "😨", "💀"];
+
     // TODO(kosinw): Use some higher order functions or some crap to get rid of this FP hell
     return _.reduce(
       filterGroups,
@@ -132,7 +134,7 @@ export const MainTable = ({ search }: { search: string }) => {
               render: (c) => (
                 <div className="grid w-5/8">
                   <span className="font-bold text-slate-900">
-                    {Math.round(c.computed.bayes * 100) / 100}
+                    {Math.round(c.computed.bayes * 100) / 100 + rankEmojis[Math.min(7 - Math.floor(c.computed.bayes), rankEmojis.length - 1)]}
                   </span>
                   <span className="text-xs font-light text-slate-600">out of 7</span>
                 </div>
@@ -230,6 +232,7 @@ const TermFilterGroup = (props: TermFilterGroupProps) => {
     </ButtonGroup>
   )
 }
+
 
 const TitleCell = ({ course }: { course: FullCourseData }) => (
   <div className="grid w-5/8">
