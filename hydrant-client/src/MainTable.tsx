@@ -121,7 +121,13 @@ export const MainTable = ({ search }: { search: string }) => {
         //   return id.startsWith(search.toLowerCase())
         // }
 
-        return id.includes(search.toLowerCase())
+        if(search.startsWith("8.")){
+          return id.startsWith("8.")
+        } else if (search.includes("21.")){
+          return id.startsWith("21")
+        }else {
+          return id.includes(search.toLowerCase())
+        }
       })
       .value()
   }, [search, filteredCourses])
