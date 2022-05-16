@@ -43,6 +43,7 @@ export type SemesterCourseInfo = Record<RatingType, RatingGroup>
 // } // straight from Ani's script
 
 export type FullCourseData = {
+  id: CourseNumber // same as course_number, just so react-table doesnt yell at us
   course_number: CourseNumber
   info: CourseInfo // properties of the class, e.g. is it a HASS
   firehose: Firehose | undefined // stuff straight from firehose
@@ -93,6 +94,7 @@ export const generateMainObject = (
     .value()
 
   const out = Object.entries(byNumber).map(([courseNumber, pastSemesters]) => ({
+    id: courseNumber,
     course_number: courseNumber,
     info: { course_name: pastSemesters[0].course_name, course_number: courseNumber },
     firehose: firehose[courseNumber],

@@ -18,6 +18,7 @@ export const Sidebar = () => (
     {links.map(({ text, link, icon }) => (
       <a
         href={link}
+        key={link}
         className="group m-2 h-10 rounded-lg hover:bg-slate-100 transition duration-75 flex cursor-pointer items-center"
       >
         {icon}

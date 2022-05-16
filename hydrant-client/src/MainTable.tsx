@@ -2,7 +2,7 @@ import MaterialTable from "@material-table/core"
 import { Paper } from "@material-ui/core"
 import _ from "lodash"
 import { makeHydrantModel, FullCourseData, CourseTerm, TermAbbrev } from "./data"
-import { HStack, Tag, VStack, ButtonGroup, Button } from "@chakra-ui/react"
+import { HStack, Tag, VStack, ButtonGroup, Button, Text } from "@chakra-ui/react"
 import React from "react"
 
 enum CourseTag {
@@ -35,7 +35,7 @@ const coursePredicates: Record<CourseTag, (x: FullCourseData) => boolean> = {
   [CourseTag.HH]: (x: FullCourseData) => (x.firehose ? x.firehose.hh : false),
 }
 
-const rankEmojis = ["👑", "😻", "👍", "👌", "🤔", "😨", "💀"];
+const rankEmojis = ["👑", "😻", "👍", "👌", "🤔", "😨", "💀"]
 const termPredicates: Record<CourseTerm, (x: FullCourseData) => boolean> = {
   [CourseTerm.FALL]: (x: FullCourseData) =>
     x.firehose ? x.firehose.t.includes(TermAbbrev.FALL) : false,
@@ -117,59 +117,69 @@ export const MainTable = ({ search }: { search: string }) => {
         </HStack>
         <TermFilterGroup filters={termFilters} setFilters={setTermFilters} />
       </HStack>
-      <div className="border-2 p-2 border-slate-100 rounded-md">
-        <MaterialTable
-          columns={[
-            {
-              title: "Course",
-              sorting: false,
-              render: (c) => <TitleCell course={c}></TitleCell>,
-              cellStyle: { width: "100vw" },
-            },
-            {
-              title: "Composite Rating",
-              field: "computed.bayes",
-              defaultSort: "desc",
-              render: (c) => (
-                <div className="grid w-5/8">
-                  <span className="font-bold text-slate-900">
-                    {Math.round(c.computed.bayes * 100) / 100 + rankEmojis[Math.min(Math.floor(7 - c.computed.bayes) * 2, rankEmojis.length - 1)]}
-                  </span>
-                  <span className="text-xs font-light text-slate-600">out of 7</span>
-                </div>
-              ),
-            },
-            {
-              title: "Tags",
-              sorting: false,
-              render: (c) => <TagContainer course={c} />,
-            },
-            {
-              title: "Semester",
-              sorting: false,
-              render: (c) => <TagContainer semester course={c} />,
-            },
-          ]}
-          detailPanel={({ rowData }) => <DropDown course = {rowData}></DropDown>}
-          data={finalCourses}
-          components={{
-            Container: (props) => <Paper elevation={0} {...props}></Paper>,
-          }}
-          style={{
-            background: "inherit",
-            zIndex: 0,
-          }}
-          options={{
-            toolbar: false,
-            pageSize: 8,
-            pageSizeOptions: [],
-            showFirstLastPageButtons: false,
-            headerStyle: { background: "inherit" },
-            detailPanelType: "single",
-            //tableLayout: "fixed",
-          }}
-        />
-      </div>
+      {finalCourses.length > 0 ? (
+        <div className="border-2 p-2 border-slate-100 rounded-md">
+          <MaterialTable
+            columns={[
+              {
+                title: "Course",
+                sorting: false,
+                render: (c) => <TitleCell course={c}></TitleCell>,
+                cellStyle: { width: "100vw" },
+              },
+              {
+                title: "Composite Rating",
+                field: "computed.bayes",
+                defaultSort: "desc",
+                render: (c) => (
+                  <div className="grid w-5/8">
+                    <span className="font-bold text-slate-900">
+                      {Math.round(c.computed.bayes * 100) / 100 +
+                        rankEmojis[
+                          Math.min(Math.floor(7 - c.computed.bayes) * 2, rankEmojis.length - 1)
+                        ]}
+                    </span>
+                    <span className="text-xs font-light text-slate-600">out of 7</span>
+                  </div>
+                ),
+              },
+              {
+                title: "Tags",
+                sorting: false,
+                render: (c) => <TagContainer course={c} />,
+              },
+              {
+                title: "Semester",
+                sorting: false,
+                render: (c) => <TagContainer semester course={c} />,
+              },
+            ]}
+            detailPanel={({ rowData }) => <DropDown course={rowData}></DropDown>}
+            data={finalCourses}
+            components={{
+              Container: (props) => <Paper elevation={0} {...props}></Paper>,
+            }}
+            style={{
+              background: "inherit",
+              zIndex: 0,
+            }}
+            options={{
+              toolbar: false,
+              pageSize: 8,
+              pageSizeOptions: [],
+              showFirstLastPageButtons: false,
+              headerStyle: { background: "inherit" },
+              detailPanelType: "single",
+              //tableLayout: "fixed",
+            }}
+          />
+        </div>
+      ) : (
+        <VStack paddingTop={12} align="center" justify="center" width="100%">
+          <Text fontWeight="bold" fontSize="4xl">No courses found 💁‍♀️!</Text>
+          <Text color="slategrey" fontSize="md">Try using different search terms or changing your filters.</Text>
+        </VStack>
+      )}
     </VStack>
   )
 }
@@ -232,7 +242,6 @@ const TermFilterGroup = (props: TermFilterGroupProps) => {
   )
 }
 
-
 const TitleCell = ({ course }: { course: FullCourseData }) => (
   <div className="grid w-5/8">
     <p className="font-extrabold text-slate-700">{course.course_number}</p>
@@ -283,7 +292,4 @@ const TagContainer = ({ course, semester }: { course: FullCourseData; semester?:
   )
 }
 
-const DropDown = ({ course }: { course: FullCourseData }) => (
-  <p></p>
-)
-
+const DropDown = ({ course }: { course: FullCourseData }) => <p></p>
