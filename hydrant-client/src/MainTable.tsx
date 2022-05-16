@@ -2,7 +2,17 @@ import MaterialTable from "@material-table/core"
 import { Paper } from "@material-ui/core"
 import _ from "lodash"
 import { makeHydrantModel, FullCourseData, CourseTerm, TermAbbrev, MainObject } from "./data"
-import { HStack, Tag, VStack, ButtonGroup, Button, Text, Spinner, Tooltip } from "@chakra-ui/react"
+import {
+  HStack,
+  Tag,
+  VStack,
+  ButtonGroup,
+  Button,
+  Text,
+  Spinner,
+  Tooltip,
+  Box,
+} from "@chakra-ui/react"
 import { CourseView } from "./CourseView"
 import React, { useEffect, useState } from "react"
 
@@ -161,15 +171,22 @@ export const MainTable = ({ search }: { search: string }) => {
                 field: "computed.bayes",
                 defaultSort: "desc",
                 render: (c) => (
-                  <div className="grid w-5/8">
-                    <span className="font-bold text-slate-900">
-                      {Math.round(c.computed.bayes * 100) / 100 +
-                        rankEmojis[
-                          Math.min(Math.floor(7 - c.computed.bayes) * 2, rankEmojis.length - 1)
-                        ]}
-                    </span>
-                    <span className="text-xs font-light text-slate-600">out of 7</span>
-                  </div>
+                  <Tooltip
+                    aria-label="ranking"
+                    label={`Average Enrollment: ${
+                      c.computed.averageEnrollment
+                    }, Average Rating: ${_.round(c.computed.totalAverage, 2)}, Enrollment Last Term: ${c.computed.lastEnrollment}`}
+                  >
+                    <div className="grid w-5/8">
+                      <span className="font-bold text-slate-900">
+                        {Math.round(c.computed.bayes * 100) / 100 +
+                          rankEmojis[
+                            Math.min(Math.floor(7 - c.computed.bayes) * 2, rankEmojis.length - 1)
+                          ]}
+                      </span>
+                      <span className="text-xs font-light text-slate-600">out of 7</span>
+                    </div>
+                  </Tooltip>
                 ),
               },
               {
@@ -342,7 +359,7 @@ const TagContainer = ({ course, semester }: { course: FullCourseData; semester?:
   )
 }
 const DropDown = ({ course }: { course: FullCourseData }) => (
-  <div>
+  <Box>
     <CourseView course={course} />
-  </div>
+  </Box>
 )
