@@ -57,6 +57,7 @@ export type Firehose = {
   u2: number
   u3: number
   d: string
+  h: string
   t: TermAbbrev[]
   pr: string
   [x: string]: any

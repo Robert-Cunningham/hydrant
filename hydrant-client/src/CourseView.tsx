@@ -96,33 +96,33 @@ export const CourseView = ({ course }: { course: FullCourseData }) => {
   }
 
   const chartInfo: ChartInfoTable = {
-    hours: {
-      text: `Hours spent inside vs. outside of class`,
-      component: (
-        <React.Fragment>
-          <PieChart
-            // width={300}
-            // height={350}
-            data={[
-              { key: "Inside", data: course.computed.inclassHours },
-              { key: "Outside", data: course.computed.outclassHours },
-            ]}
-            series={
-              <PieArcSeries
-                cornerRadius={4}
-                padAngle={0.02}
-                padRadius={200}
-                doughnut={true}
-                colorScheme="Set2"
-              />
-            }
-          />
-          <Text fontWeight="normal" fontSize="xs">
-            Avg. hours spent inside vs. outside class
-          </Text>
-        </React.Fragment>
-      ),
-    },
+    // hours: {
+    //   text: `Hours spent inside vs. outside of class`,
+    //   component: (
+    //     <React.Fragment>
+    //       <PieChart
+    //         // width={300}
+    //         // height={350}
+    //         data={[
+    //           { key: "Inside", data: course.computed.inclassHours },
+    //           { key: "Outside", data: course.computed.outclassHours },
+    //         ]}
+    //         series={
+    //           <PieArcSeries
+    //             cornerRadius={4}
+    //             padAngle={0.02}
+    //             padRadius={200}
+    //             doughnut={true}
+    //             colorScheme="Set2"
+    //           />
+    //         }
+    //       />
+    //       <Text fontWeight="normal" fontSize="xs">
+    //         Avg. hours spent inside vs. outside class
+    //       </Text>
+    //     </React.Fragment>
+    //   ),
+    // },
     enrollment: {
       text: `Enrollment since ${enrollmentHistorical[0].key.getFullYear().toString()}`,
       component: (
@@ -228,9 +228,9 @@ export const CourseView = ({ course }: { course: FullCourseData }) => {
           </Text>
           <Text fontSize="sm">
             <Text display="inline" fontWeight="bold">
-              Hours (in/out)
+              Hours
             </Text>
-            : {course.computed.inclassHours}/{course.computed.outclassHours}
+            : {firehose.h}
           </Text>
           {course.otherNumbers.length > 0 ? (
             <Text fontSize="sm">

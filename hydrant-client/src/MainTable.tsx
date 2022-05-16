@@ -293,7 +293,7 @@ export const MainTable = ({ search }: { search: string }) => {
                 field: "computed.hours",
                 render: (c) => (
                   <div className="grid w-5/8">
-                    <span className="font-bold text-slate-900">{c.computed.hours}</span>
+                    <span className="font-bold text-slate-900">{c.firehose && c.firehose.h}</span>
                     <span className="text-xs font-light text-slate-600">hours</span>
                   </div>
                 ),
