@@ -27,6 +27,18 @@ export type CourseInfo = {
   ratings: SemesterCourseInfo
   inclass_hours: RatingGroup
   outclass_hours: RatingGroup
+  eligible: number
+  teachers: TeacherMetadata[]
+}
+
+export enum TeacherType {
+  LECTURER = "(LEC)",
+}
+
+export type TeacherMetadata = {
+  id: string
+  name: string
+  type: TeacherType
 }
 
 export enum RatingType {
@@ -44,7 +56,9 @@ export type Firehose = {
   u1: number
   u2: number
   u3: number
+  d: string
   t: TermAbbrev[]
+  pr: string
   [x: string]: any
 } // straight from firehose
 export type SemesterCourseInfo = Record<RatingType, RatingGroup>
@@ -78,6 +92,8 @@ type CourseNumber = string
 type ComputedCourseProperties = {
   totalResponded: number
   totalAverage: number
+  averageEnrollment: number
+  lastEnrollment: number
   bayes: number
   inclassHours: number
   outclassHours: number
@@ -133,6 +149,9 @@ const computeStatsByNumber = (history: CourseInfo[]): ComputedCourseProperties =
   const inclassAverage = _.round(_.sum(inclassHours.map((r) => r.avg)) / inclassHours.length, 1)
   const outclassAverage = _.round(_.sum(outclassHours.map((r) => r.avg)) / outclassHours.length, 1)
 
+  const overallEnrollment = history.map((ci) => ci.eligible)
+  const averageEnrollment = _.round(_.sum(overallEnrollment) / overallEnrollment.length , 2)
+
   const b = bayes({ totalAverage, totalResponded })
   return {
     totalResponded,
@@ -141,6 +160,8 @@ const computeStatsByNumber = (history: CourseInfo[]): ComputedCourseProperties =
     inclassHours: inclassAverage,
     outclassHours: outclassAverage,
     hours: inclassAverage + outclassAverage,
+    averageEnrollment,
+    lastEnrollment: _.first(overallEnrollment) || 0
   }
 }
 
