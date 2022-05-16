@@ -14,7 +14,7 @@ const links = [
 ]
 
 export const Sidebar = () => (
-  <div className="col-span-2 bg-slate-50 border-r">
+  <div className="hidden lg:block col-span-2 bg-slate-50 border-r">
     {links.map(({ text, link, icon }) => (
       <a
         href={link}

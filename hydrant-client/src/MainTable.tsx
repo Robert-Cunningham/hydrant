@@ -5,6 +5,7 @@ import { makeHydrantModel, FullCourseData, CourseTerm, TermAbbrev, MainObject } 
 import { HStack, Tag, VStack, ButtonGroup, Button, Text, Spinner, Tooltip } from "@chakra-ui/react"
 import { CourseView } from "./CourseView"
 import React, { useEffect, useState } from "react"
+import { useWindowWidth } from "@react-hook/window-size"
 
 enum CourseTag {
   CI = "CI-H",
@@ -47,6 +48,10 @@ const termPredicates: Record<CourseTerm, (x: FullCourseData) => boolean> = {
 }
 
 export const MainTable = ({ search }: { search: string }) => {
+  const windowHeight = useWindowWidth()
+  const windowAtLeastLarge = windowHeight >= 1024
+  const windowAtLeastSmall = windowHeight >= 640
+
   const [loading, setLoading] = useState<boolean>(true)
   const [model, setModel] = useState<MainObject>({})
 
@@ -136,8 +141,8 @@ export const MainTable = ({ search }: { search: string }) => {
     )
   }
 
-  return (
-    <VStack align="flex-start" spacing={4}>
+  /*
+
       <HStack width="100%" justify="space-between">
         <HStack spacing={2}>
           <CourseFilterGroup hassFilters={hassFilters} setHassFilters={setHassFilters} />
@@ -145,6 +150,15 @@ export const MainTable = ({ search }: { search: string }) => {
         </HStack>
         <TermFilterGroup filters={termFilters} setFilters={setTermFilters} />
       </HStack>
+  */
+
+  return (
+    <VStack align="flex-start" spacing={4}>
+      <div className="grid sm:grid-flow-col grid-flow-row gap-3 justify-between">
+        <CourseFilterGroup hassFilters={hassFilters} setHassFilters={setHassFilters} />
+        <CourseFilterGroup hass hassFilters={hassFilters} setHassFilters={setHassFilters} />
+        <TermFilterGroup filters={termFilters} setFilters={setTermFilters} />
+      </div>
       {finalCourses.length > 0 && !loading ? (
         <div className="border-2 p-2 border-slate-100 rounded-md">
           <MaterialTable
@@ -157,7 +171,7 @@ export const MainTable = ({ search }: { search: string }) => {
                 cellStyle: { width: "100vw" },
               },
               {
-                title: "Composite Rating",
+                title: "Rating",
                 field: "computed.bayes",
                 defaultSort: "desc",
                 render: (c) => (
@@ -173,9 +187,8 @@ export const MainTable = ({ search }: { search: string }) => {
                 ),
               },
               {
-                title: "Time Spent",
+                title: "Hours",
                 field: "computed.hours",
-                sorting: false,
                 render: (c) => (
                   <div className="grid w-5/8">
                     <span className="font-bold text-slate-900">{c.computed.hours}</span>
@@ -186,15 +199,21 @@ export const MainTable = ({ search }: { search: string }) => {
               {
                 title: "Semester",
                 sorting: false,
+                hidden: !windowAtLeastLarge,
                 render: (c) => <TagContainer semester course={c} />,
               },
               {
                 title: "Fulfills",
+                hidden: !windowAtLeastSmall,
                 sorting: false,
                 render: (c) => <TagContainer course={c} />,
               },
             ]}
-            detailPanel={({ rowData }) => <DropDown course={rowData}></DropDown>}
+            detailPanel={[
+              {
+                render: ({ rowData }) => <DropDown course={rowData}></DropDown>,
+              },
+            ]}
             data={finalCourses}
             components={{
               Container: (props) => <Paper elevation={0} {...props}></Paper>,

@@ -12,7 +12,7 @@ const App = () => {
       <Header />
       <div className="w-full grid grid-cols-12">
         <Sidebar></Sidebar>
-        <div className="col-span-10 bg-slate-50">
+        <div className="col-span-12 lg:col-span-10 bg-slate-50">
           <Routes>
             <Route path="/" element={<MainList></MainList>}></Route>
             <Route path="/post/:id" element={<Post></Post>}></Route>
@@ -25,23 +25,27 @@ const App = () => {
 
 const MainList = () => {
   const [search, setSearch] = useState<string>("")
-  const [delayedSearch, setDelayedSearch] = useState<string>("");
+  const [delayedSearch, setDelayedSearch] = useState<string>("")
 
-  const searchHandler = (v: string) => { setDelayedSearch(v); }
+  const searchHandler = (v: string) => {
+    setDelayedSearch(v)
+  }
   const debouncedSearch = useMemo(() => _.debounce(searchHandler, 500), [])
 
   useEffect(() => {
     return () => {
-      debouncedSearch.cancel();
+      debouncedSearch.cancel()
     }
-  }, []);
+  }, [])
 
-  useEffect(() => { debouncedSearch(search); }, [search]);
+  useEffect(() => {
+    debouncedSearch(search)
+  }, [search])
 
   return (
-    <div className="p-4 overflow-auto h-[calc(100vh-theme(space.16))]">
-      <div className="max-w-5xl mt-6 mx-auto">
-        <div className="grid gap-4">
+    <div className="p-1 sm:p-4 overflow-auto h-[calc(100vh-theme(space.16))]">
+      <div className="max-w-5xl mt-1 sm:mt-6 mx-auto">
+        <div className="grid sm:gap-4 gap-2">
           <Search {...{ search, setSearch }}></Search>
           <MainTable {...{ search: delayedSearch }}></MainTable>
         </div>
