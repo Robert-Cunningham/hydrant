@@ -5,52 +5,98 @@ import { makeHydrantModel, FullCourseData } from "./data"
 import { HStack, Tag, VStack, ButtonGroup, Button } from "@chakra-ui/react";
 import React from "react"
 
+
+enum CourseTag {
+  CI = "CI-H",
+  CW = "CI-HW",
+  HA = "HASS-A",
+  HS = "HASS-S",
+  HH = "HASS-H"
+}
+
+const colorMap: Record<CourseTag, string> = {
+  [CourseTag.CI]: "red",
+  [CourseTag.CW]: "blue",
+  [CourseTag.HA]: "teal",
+  [CourseTag.HS]: "purple",
+  [CourseTag.HH]: "orange"
+};
+
+const coursePredicates: Record<CourseTag, (x: FullCourseData) => boolean> = {
+  [CourseTag.CI]: (x: FullCourseData) => x.firehose ? x.firehose.ci : false,
+  [CourseTag.CW]: (x: FullCourseData) => x.firehose ? x.firehose.cw : false,
+  [CourseTag.HA]: (x: FullCourseData) => x.firehose ? x.firehose.ha : false,
+  [CourseTag.HS]: (x: FullCourseData) => x.firehose ? x.firehose.hs : false,
+  [CourseTag.HH]: (x: FullCourseData) => x.firehose ? x.firehose.hh : false,
+}
+
+
 export const MainTable = ({ search }: { search: string }) => {
-  // const input = d as (SemesterCourseInfo & CourseInfo)[]
-  // let mainObject = useMemo(() => generateMainObject(input, {}), [])
-  // const mainObject = 
-  // let courses = Object.values(mainObject)
-
-  // courses = _(courses)
-  //   .filter((course) =>
-  //     JSON.stringify(course.info.course_name + course.course_number)
-  //       .toLowerCase()
-  //       .includes(search.toLowerCase())
-  //   )
-  //   .value()
   const model = makeHydrantModel()
-  const courses = _(Object.values(model))
-    .filter((course) =>
-      JSON.stringify(course.info.course_name + course.course_number)
-        .toLowerCase()
-        .includes(search.toLowerCase())
-    )
-    .value()
+  const courses = Object.values(model);
 
-  const [hassA, setHassA] = React.useState(false);
-  const [hassS, setHassS] = React.useState(false);
-  const [hassH, setHassH] = React.useState(false);
-  const [ciH, setCiH] = React.useState(false);
-  const [ciHW, setCiHW] = React.useState(false);
+  const [hassFilters, setHassFilters] = React.useState<Record<CourseTag, boolean>>(
+    _.fromPairs(Object.values(CourseTag).map((tag): [CourseTag, boolean] => [tag, false])) as Record<CourseTag, boolean>
+  );
+
+  const filteredCourses = React.useMemo(() => {
+    const filterGroups: CourseTag[][] = [
+      [CourseTag.CI, CourseTag.CW],
+      [CourseTag.HA, CourseTag.HH, CourseTag.HS],
+    ];
+
   const rankEmojis = ["👑", "😻", "👍", "🤔", "😨", "💀"];
+
+    // TODO(kosinw): Use some higher order functions or some crap to get rid of this FP hell
+    // return _(courses)
+    //   .filter((course) =>
+    //     _(hassFilters)
+    //       .toPairs()
+    //       .filter(([tag, active]) => [CourseTag.CI, CourseTag.CW].includes(tag as CourseTag))
+    //       .map(([tag, active]: [CourseTag, boolean]) => !active ? false : coursePredicates[tag](course))
+    //       .some(x => x)
+    //   )
+    //   .value();
+    return _.reduce(filterGroups, (courses, group) => {
+      if (!_.some(group, x => hassFilters[x])) {
+        return courses;
+      }
+
+      return courses.filter(course =>
+        _.map(group, tag => hassFilters[tag] ? coursePredicates[tag](course) : false).some(_.identity)
+      );
+    }, _(courses))
+      .value();
+  }, [hassFilters]);
+
+  const finalCourses = React.useMemo(() => {
+    return _(filteredCourses)
+      .filter(course => {
+        const id = `${course.course_number}|${course.info.course_name}`.toLowerCase();
+
+        if (!isNaN(parseInt(search.at(0) as string))) {
+          return id.startsWith(search.toLowerCase());
+        }
+
+        return id.includes(search.toLowerCase())
+      })
+      .value()
+  }, [hassFilters, search]);
 
   return (
     <VStack align="flex-start" spacing={4}>
       <HStack width="100%" justify="space-between">
-        <CourseFilterGroup
-          {...{
-            hassA,
-            setHassA,
-            hassH,
-            setHassH,
-            hassS,
-            setHassS,
-            ciH,
-            setCiH,
-            ciHW,
-            setCiHW
-          }}
-        />
+        <HStack spacing={2}>
+          <CourseFilterGroup
+            hassFilters={hassFilters}
+            setHassFilters={setHassFilters}
+          />
+          <CourseFilterGroup
+            hass
+            hassFilters={hassFilters}
+            setHassFilters={setHassFilters}
+          />
+        </HStack>
         <TermFilterGroup />
       </HStack>
       <div className="border-2 p-2 border-slate-100 rounded-md">
@@ -86,7 +132,7 @@ export const MainTable = ({ search }: { search: string }) => {
             }
           ]}
           detailPanel={({ rowData }) => <div>This class was a banger!</div>}
-          data={courses}
+          data={finalCourses}
           components={{
             Container: (props) => <Paper elevation={0} {...props}></Paper>,
           }}
@@ -108,42 +154,23 @@ export const MainTable = ({ search }: { search: string }) => {
     </VStack>
   )
 }
-
-
-enum CourseTag {
-  CI = "CI-H",
-  CW = "CI-HW",
-  HA = "HASS-A",
-  HS = "HASS-S",
-  HH = "HASS-H"
-}
-
-const colorMap: Record<CourseTag, string> = {
-  [CourseTag.CI]: "red",
-  [CourseTag.CW]: "blue",
-  [CourseTag.HA]: "teal",
-  [CourseTag.HS]: "purple",
-  [CourseTag.HH]: "orange"
-};
-
 type CourseFilterGroupProps = {
-  hassA: boolean
-  setHassA: React.Dispatch<React.SetStateAction<boolean>>
-  hassH: boolean
-  setHassH: React.Dispatch<React.SetStateAction<boolean>>
-  hassS: boolean
-  setHassS: React.Dispatch<React.SetStateAction<boolean>>
-  ciH: boolean
-  setCiH: React.Dispatch<React.SetStateAction<boolean>>
-  ciHW: boolean
-  setCiHW: React.Dispatch<React.SetStateAction<boolean>>
+  hass?: boolean
+  hassFilters: Record<CourseTag, boolean>
+  setHassFilters: React.Dispatch<React.SetStateAction<Record<CourseTag, boolean>>>
 };
 
-const CourseFilterGroup = (props: CourseFilterGroupProps) => {
+const CourseFilterGroup = ({ hass, hassFilters, setHassFilters }: CourseFilterGroupProps) => {
   return (
-    <ButtonGroup size='sm' isAttached colorScheme='messenger' variant='outline'>
-      {Object.values(CourseTag).map(tag =>
-        <Button variant={tag === CourseTag.CI ? 'solid' : 'outline'} key={tag} colorScheme={colorMap[tag]}>{tag}</Button>
+    <ButtonGroup size='sm' isAttached variant='outline'>
+      {Object.values(CourseTag).filter((tag) => {
+        const isHass = tag === CourseTag.CI || tag === CourseTag.CW
+        return hass ? isHass : !isHass
+      }).map(tag =>
+        <Button onClick={(e) => {
+          e.preventDefault();
+          setHassFilters({ ...hassFilters, [tag]: !hassFilters[tag] });
+        }} variant={hassFilters[tag] ? 'solid' : 'outline'} key={tag} colorScheme={colorMap[tag]}>{tag}</Button>
       )}
     </ButtonGroup>
   );
