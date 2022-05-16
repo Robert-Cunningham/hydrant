@@ -1,5 +1,4 @@
 import _ from "lodash"
-import { useMemo } from "react"
 
 export enum CourseTerm {
   FALL = "Fall",
@@ -55,6 +54,7 @@ export type FullCourseData = {
   firehose: Firehose | undefined // stuff straight from firehose
   history: SemesterCourseInfo[] // historical rating data, teaching data, etc.
   computed: ComputedCourseProperties // bayes, ranking info, etc.
+  otherNumbers: CourseNumber[]
 }
 
 export type MainObject = Record<CourseNumber, FullCourseData>
@@ -103,6 +103,7 @@ export const generateMainObject = (
     firehose: firehose[courseNumber],
     history: pastSemesters,
     computed: computeStatsByNumber(pastSemesters),
+    otherNumbers: [],
   }))
 
   return _(out)
@@ -195,7 +196,10 @@ function deduplicateCourses(m: MainObject): MainObject {
       if (data.firehose.sa !== "") {
         _(data.firehose.sa)
           .split(", ")
-          .each((n: CourseNumber) => shouldRemove.add(n))
+          .each((n: CourseNumber) => {
+            m[number].otherNumbers.push(n)
+            shouldRemove.add(n)
+          })
       }
 
       if (data.firehose.mw !== "") {
@@ -203,6 +207,7 @@ function deduplicateCourses(m: MainObject): MainObject {
           .split(", ")
           .each((n: CourseNumber) => {
             // TODO(kosinw): Do some magic lodash fp merging shit
+            m[number].otherNumbers.push(n)
             shouldRemove.add(n)
           })
       }

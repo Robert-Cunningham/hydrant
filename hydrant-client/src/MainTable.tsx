@@ -2,7 +2,7 @@ import MaterialTable from "@material-table/core"
 import { Paper } from "@material-ui/core"
 import _ from "lodash"
 import { makeHydrantModel, FullCourseData, CourseTerm, TermAbbrev, MainObject } from "./data"
-import { HStack, Tag, VStack, ButtonGroup, Button, Text, Spinner } from "@chakra-ui/react"
+import { HStack, Tag, VStack, ButtonGroup, Button, Text, Spinner, Tooltip } from "@chakra-ui/react"
 import React, { useEffect, useState } from "react"
 
 enum CourseTag {
@@ -80,15 +80,6 @@ export const MainTable = ({ search }: { search: string }) => {
     ]
 
     // TODO(kosinw): Use some higher order functions or some crap to get rid of this FP hell
-    // return _(courses)
-    //   .filter((course) =>
-    //     _(hassFilters)
-    //       .toPairs()
-    //       .filter(([tag, active]) => [CourseTag.CI, CourseTag.CW].includes(tag as CourseTag))
-    //       .map(([tag, active]: [CourseTag, boolean]) => !active ? false : coursePredicates[tag](course))
-    //       .some(x => x)
-    //   )
-    //   .value();
     return _.reduce(
       filterGroups,
       (courses, group) => {
@@ -117,7 +108,9 @@ export const MainTable = ({ search }: { search: string }) => {
   const finalCourses = React.useMemo(() => {
     return _(filteredCourses)
       .filter((course) => {
-        const id = `${course.course_number}|${course.info.course_name}`.toLowerCase()
+        const id = `${course.course_number}|${course.info.course_name}|${course.otherNumbers.join(
+          "|"
+        )}`.toLowerCase()
 
         // if (!isNaN(parseInt(search.at(0) as string))) {
         //   return id.startsWith(search.toLowerCase())
@@ -223,7 +216,7 @@ export const MainTable = ({ search }: { search: string }) => {
       ) : (
         <VStack paddingTop={12} align="center" justify="center" width="100%">
           <Text fontWeight="bold" fontSize="4xl">
-            No courses found 💁‍♀️!
+            No courses found! 💁‍♀️
           </Text>
           <Text color="slategrey" fontSize="md">
             Try using different search terms or changing your filters.
@@ -272,9 +265,6 @@ type TermFilterGroupProps = {
 const TermFilterGroup = (props: TermFilterGroupProps) => {
   return (
     <ButtonGroup size="sm" isAttached colorScheme="messenger" variant="outline">
-      {/* <Button colorScheme="yellow">Fall</Button>
-      <Button colorScheme="green">IAP</Button>
-      <Button colorScheme="pink">Spring</Button> */}
       {Object.values(CourseTerm).map((term) => (
         <Button
           onClick={(e) => {
@@ -294,8 +284,17 @@ const TermFilterGroup = (props: TermFilterGroupProps) => {
 
 const TitleCell = ({ course }: { course: FullCourseData }) => (
   <div className="grid w-5/8">
-    <p className="font-extrabold text-slate-700">{course.course_number}</p>
-    <p className="text-slate-400 text-sm truncate">{course.info.course_name}</p>
+    <Tooltip
+      label={`Also known as: ${course.course_number}${
+        course.otherNumbers.length > 0 ? `, ${course.otherNumbers.join(", ")}` : ""
+      }`}
+      aria-label="Class number"
+    >
+      <p className="font-extrabold text-slate-700">{course.course_number}</p>
+    </Tooltip>
+    <Tooltip label={course.info.course_name} aria-label="Class name">
+      <p className="text-slate-400 text-sm truncate">{course.info.course_name}</p>
+    </Tooltip>
   </div>
 )
 
