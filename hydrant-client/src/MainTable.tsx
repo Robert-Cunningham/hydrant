@@ -60,6 +60,7 @@ export const MainTable = ({ search }: { search: string }) => {
       Object.values(CourseTerm).map((tag): [CourseTerm, boolean] => [tag, false])
     ) as Record<CourseTerm, boolean>),
     [CourseTerm.FALL]: true,
+    [CourseTerm.SPRING]: true
   })
 
   const filteredCourses = React.useMemo(() => {
