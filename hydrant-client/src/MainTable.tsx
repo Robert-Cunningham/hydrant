@@ -33,7 +33,6 @@ const coursePredicates: Record<CourseTag, (x: FullCourseData) => boolean> = {
   [CourseTag.HA]: (x: FullCourseData) => (x.firehose ? x.firehose.ha : false),
   [CourseTag.HS]: (x: FullCourseData) => (x.firehose ? x.firehose.hs : false),
   [CourseTag.HH]: (x: FullCourseData) => (x.firehose ? x.firehose.hh : false),
-  [CourseTag.GIR]: (x: FullCourseData) => (x.firehose ? x.firehose.f : false)
 }
 
 const rankEmojis = ["👑", "😻", "👍", "👌", "🤔", "😨", "💀"]
