@@ -131,7 +131,7 @@ export const generateMainObject = (
   }))
 
   return _(out)
-    .filter((c) => !isNaN(c.computed.bayes))
+    .filter((c) => !isNaN(c.computed.ewmaBayes))
     .map((c) => [c.course_number, c])
     .fromPairs()
     .value() as MainObject
@@ -181,6 +181,8 @@ const timeSince = ({ term, year }: { term: CourseTerm; year: string }) => {
   return courseTimeToInt({ term: CourseTerm.FALL, year: "2022" }) - courseTimeToInt({ term, year })
 }
 
+const exp = 0.95
+
 const ewmaBayes = (history: CourseInfo[]) => {
   //console.log("ts", timeSince({ year: "2020", term: CourseTerm.FALL }))
   //console.log(history)
@@ -188,16 +190,16 @@ const ewmaBayes = (history: CourseInfo[]) => {
   const adjustedEnrollment = _(rankedHistory)
     .map((h) => {
       if (history[0].course_number === "11.011") {
-        console.log(h, timeSince(h), Math.pow(0.95, timeSince(h)))
+        console.log(h, timeSince(h), Math.pow(exp, timeSince(h)))
       }
-      return Math.pow(0.95, timeSince(h)) * h.ratings["Overall rating of the subject"].responses
+      return Math.pow(exp, timeSince(h)) * h.ratings["Overall rating of the subject"].responses
     })
     .sum()
 
   const adjustedRating = _(rankedHistory)
     .map(
       (h) =>
-        Math.pow(0.95, timeSince(h)) *
+        Math.pow(exp, timeSince(h)) *
         h.ratings["Overall rating of the subject"].responses *
         h.ratings["Overall rating of the subject"]?.avg
     )
