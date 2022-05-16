@@ -30,6 +30,7 @@ const coursePredicates: Record<CourseTag, (x: FullCourseData) => boolean> = {
   [CourseTag.HH]: (x: FullCourseData) => x.firehose ? x.firehose.hh : false,
 }
 
+const rankEmojis = ["👑", "😻", "👍", "👌", "🤔", "😨", "💀"];
 
 export const MainTable = ({ search }: { search: string }) => {
   const model = makeHydrantModel()
@@ -44,8 +45,6 @@ export const MainTable = ({ search }: { search: string }) => {
       [CourseTag.CI, CourseTag.CW],
       [CourseTag.HA, CourseTag.HH, CourseTag.HS],
     ];
-
-  const rankEmojis = ["👑", "😻", "👍", "🤔", "😨", "💀"];
 
     // TODO(kosinw): Use some higher order functions or some crap to get rid of this FP hell
     // return _(courses)
@@ -74,9 +73,9 @@ export const MainTable = ({ search }: { search: string }) => {
       .filter(course => {
         const id = `${course.course_number}|${course.info.course_name}`.toLowerCase();
 
-        if (!isNaN(parseInt(search.at(0) as string))) {
-          return id.startsWith(search.toLowerCase());
-        }
+        // if (!isNaN(parseInt(search.at(0) as string))) {
+        //   return id.startsWith(search.toLowerCase());
+        // }
 
         return id.includes(search.toLowerCase())
       })
@@ -115,7 +114,7 @@ export const MainTable = ({ search }: { search: string }) => {
               render: (c) => (
                 <div className="grid w-5/8">
                   <span className="font-bold text-slate-900">
-                    {Math.round(c.computed.bayes * 100) / 100 + rankEmojis[Math.min(7 - Math.floor(c.computed.bayes), rankEmojis.length - 1)]}
+                    {Math.round(c.computed.bayes * 100) / 100 + rankEmojis[Math.min(Math.floor(7 - c.computed.bayes) * 2, rankEmojis.length - 1)]}
                   </span>
                   <span className="text-xs font-light text-slate-600">
                     out of 7
@@ -131,7 +130,7 @@ export const MainTable = ({ search }: { search: string }) => {
               ),
             }
           ]}
-          detailPanel={({ rowData }) => <div>This class was a banger!</div>}
+          detailPanel={({ rowData }) => <DropDown course = {rowData}></DropDown>}
           data={finalCourses}
           components={{
             Container: (props) => <Paper elevation={0} {...props}></Paper>,
@@ -219,4 +218,8 @@ const TagContainer = ({ course }: { course: FullCourseData }) => {
     </HStack>
   );
 }
+
+const DropDown = ({ course }: { course: FullCourseData }) => (
+  <p></p>
+)
 
