@@ -2,6 +2,7 @@ import json
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+
 from requests_futures.sessions import FuturesSession
 from config import cookies
 from bs4 import BeautifulSoup
@@ -10,17 +11,11 @@ base = "https://eduapps.mit.edu/ose-rpt/"
 search = "https://eduapps.mit.edu/ose-rpt/subjectEvaluationSearch.htm?termId=&departmentId=&subjectCode=*&instructorName=&search=Search"
 
 r = requests.get(search, cookies=cookies, timeout=20)
-
-print(r.status_code)
-
 soup =  BeautifulSoup(r.content, 'html.parser')
-
-eval_div = soup.find_all("div",{"id": "rh-col"})[0]
 
 session = FuturesSession(executor=ThreadPoolExecutor(max_workers=32))
 
-# soup.findChildren
-
+# No evaluations in 2021 due to COVID.
 valid_years = ["2015", "2016", "2017", "2018", "2019", "2020"]
 
 def validate(str):
@@ -121,9 +116,6 @@ def process_link(page, text):
                 outclass_hours = stat
             else:
                 ratings[stat_title] = stat
-        
-
-
 
     data_list.append({
         'course_number': course_number,
@@ -139,9 +131,6 @@ def process_link(page, text):
     })
 
 futures = []
-for child in eval_div.findChildren("p", recursive=False):
-    # try:
-        links = child.findChildren("a")
 
         text = child.text.strip()
         text = removeSuffix(text,  "End of Term")
@@ -180,6 +169,3 @@ for future in as_completed(futures):
 
 with open('2015-now_ratings.json', 'w', encoding='utf-8') as f:
     json.dump(data_list, f, ensure_ascii=False, indent=4)
-
-
-
