@@ -1,13 +1,5 @@
-import json
-import requests
 import re
-
-
-from config import cookies
 from bs4 import BeautifulSoup
-
-base = "https://eduapps.mit.edu/ose-rpt/"
-search = "https://eduapps.mit.edu/ose-rpt/subjectEvaluationSearch.htm?termId=&departmentId=&subjectCode=*&instructorName=&search=Search"
 
 def removePrefix(text, prefix):
     if text.startswith(prefix):
@@ -45,8 +37,6 @@ def extract_info(content):
     year = title_regex['year']
     term = title_regex['term']
 
-    print(course_number, year, term)
-
     meta_table = soup.find("td", {"class": "subjectTitle"})
     header = meta_table.find('h1').text.strip() # 8.01 Physics I
     #subheader = meta_table.find('h2').text.strip() #Survey Window: IAP 2022 | (..)
@@ -54,14 +44,6 @@ def extract_info(content):
     first_course_name_number = header.split('\n')[0] # there may be multiple separated by whitespace
     course_number = first_course_name_number.split('\u00A0')[0] #nonbreaking space
     course_name = ' '.join(first_course_name_number.split('\u00A0')[1:])
-
-    # [term, year] = text.split()[-2:]
-    # course_number  = text.split()[0]
-
-    # course_name = " ".join(text.split()[1:-2])
-    # print(course_number, term, year)
-
-    # page = requests.get(url, cookies=cookies, timeout=60)
 
     tooltips = soup.findAll("p", {"class":"tooltip"})
     eligible = int(removePrefix(tooltips[0].text, "Eligible to Respond: ").split()[0])

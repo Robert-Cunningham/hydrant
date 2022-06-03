@@ -3,6 +3,7 @@ from requests_futures.sessions import FuturesSession
 from config import cookies
 from bs4 import BeautifulSoup
 import requests
+from tqdm import tqdm
 
 base = "https://eduapps.mit.edu/ose-rpt/"
 list_of_all_course_evals = "https://eduapps.mit.edu/ose-rpt/subjectEvaluationSearch.htm?termId=&departmentId=&subjectCode=*&instructorName=&search=Search"
@@ -52,8 +53,10 @@ def get_html_from_hrefs(hrefs):
 
 	out = []
 
-	for future in as_completed(futures):
-		out.append(future.result().content)
+	with tqdm(total=len(hrefs)) as loading_bar:
+		for future in as_completed(futures):
+			out.append(future.result().content)
+			loading_bar.update(1)
 	
 	return out
 	
